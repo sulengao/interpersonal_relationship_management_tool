@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>极简人际关系管理 - 校园进阶版</title>
+    <title>极简人际关系管理 - 存档管理版</title>
     <style>
         :root {
             --bg-color: #f9fafb;
@@ -26,14 +26,38 @@
             box-sizing: border-box;
         }
 
+        /* 顶部标题与存档管理区 */
+        .header-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
         h1 {
-            text-align: center;
             font-weight: 500;
             font-size: 1.8rem;
-            margin-bottom: 2rem;
+            margin: 0;
             letter-spacing: 0.5px;
         }
 
+        .archive-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .archive-btn {
+            background-color: white;
+            color: var(--text-main);
+            border: 1px solid var(--border-color);
+        }
+
+        .archive-btn:hover {
+            background-color: var(--bg-color);
+            color: var(--primary-color);
+        }
+
+        /* 搜索与筛选 */
         .toolbar {
             display: flex;
             gap: 1rem;
@@ -42,6 +66,7 @@
 
         .toolbar input { flex: 1; }
 
+        /* 表单区域 */
         .form-section {
             background: var(--card-bg);
             padding: 1.5rem;
@@ -49,7 +74,7 @@
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
             display: flex;
             flex-direction: column;
-            gap: 1rem;
+            gap: 1.2rem;
             margin-bottom: 3rem;
         }
 
@@ -93,22 +118,51 @@
             border-radius: 6px;
             font-size: 0.95rem;
             cursor: pointer;
-            transition: background-color 0.2s;
+            transition: all 0.2s;
             height: 40px;
             font-weight: 500;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         button:hover { background-color: var(--primary-hover); }
 
+        /* 动态联系方式行 */
+        .contact-methods-box {
+            border-left: 3px solid var(--border-color);
+            padding-left: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .method-row {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+
+        .add-method-btn {
+            background: transparent;
+            color: var(--accent-color);
+            border: 1px dashed var(--border-color);
+            height: 36px;
+            font-size: 0.85rem;
+            width: fit-content;
+        }
+        .add-method-btn:hover { background: #eff6ff; }
+
         /* 校园信息折叠区 */
         .campus-toggle {
             font-size: 0.85rem;
-            color: var(--accent-color);
+            color: var(--text-muted);
             cursor: pointer;
             user-select: none;
             display: inline-block;
-            margin-top: 0.5rem;
+            transition: color 0.2s;
         }
+        .campus-toggle:hover { color: var(--primary-color); }
         
         #studentFields {
             display: none;
@@ -116,9 +170,9 @@
             padding: 1rem;
             border-radius: 8px;
             border: 1px dashed var(--border-color);
-            margin-top: 0.5rem;
         }
 
+        /* 列表区域样式 */
         .contacts-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -165,19 +219,19 @@
             margin-top: 0.3rem;
         }
 
-        /* 社交信息展示 */
         .social-info {
             font-size: 0.85rem;
-            color: var(--text-muted);
+            color: var(--text-main);
             margin-bottom: 0.8rem;
             display: flex;
-            gap: 1rem;
+            gap: 0.5rem;
             flex-wrap: wrap;
         }
         .social-info span {
             background: #f3f4f6;
-            padding: 0.2rem 0.5rem;
-            border-radius: 4px;
+            padding: 0.3rem 0.6rem;
+            border-radius: 6px;
+            border: 1px solid #e5e7eb;
         }
 
         .student-info {
@@ -228,12 +282,6 @@
             font-size: 0.85rem;
         }
 
-        .add-note-box button {
-            padding: 0 0.8rem;
-            height: auto;
-            font-size: 0.85rem;
-        }
-
         .delete-btn {
             background-color: transparent;
             color: #ef4444;
@@ -241,22 +289,35 @@
             height: auto;
             font-size: 0.85rem;
         }
-        .delete-btn:hover {
-            background-color: transparent;
-            text-decoration: underline;
-            color: #dc2626;
+        .delete-btn:hover { background-color: transparent; text-decoration: underline; color: #dc2626; }
+        
+        .remove-row-btn {
+            background: transparent;
+            color: #ef4444;
+            border: none;
+            padding: 0 0.5rem;
+            font-size: 1.2rem;
+            height: 36px;
         }
+        .remove-row-btn:hover { background: #fee2e2; }
     </style>
 </head>
 <body>
 
-    <h1>人际关系图谱</h1>
+    <div class="header-section">
+        <h1>人际关系图谱</h1>
+        <div class="archive-actions">
+            <input type="file" id="importFileInput" accept=".json" style="display: none;">
+            <button class="archive-btn" onclick="document.getElementById('importFileInput').click()">📂 导入存档</button>
+            <button class="archive-btn" onclick="exportData()">💾 导出存档</button>
+        </div>
+    </div>
 
     <div class="toolbar">
-        <input type="text" id="searchInput" placeholder="🔍 搜索姓名、微信号、专业或备注..." autocomplete="off">
+        <input type="text" id="searchInput" placeholder="🔍 搜索姓名、联系方式、专业或备注..." autocomplete="off">
         <select id="filterSelect">
             <option value="全部">全部分类</option>
-            </select>
+        </select>
     </div>
 
     <div class="form-section">
@@ -269,21 +330,17 @@
             <div class="input-group">
                 <label>身份标签</label>
                 <div style="display: flex; gap: 0.5rem;">
-                    <select id="relationSelect" style="flex: 1;">
-                        </select>
+                    <select id="relationSelect" style="flex: 1;"></select>
                     <input type="text" id="customRelationInput" placeholder="输入新标签" style="display: none; flex: 1;" autocomplete="off">
                 </div>
             </div>
+        </div>
 
-            <div class="input-group">
-                <label>微信</label>
-                <input type="text" id="wechatInput" placeholder="微信号/手机号" autocomplete="off">
-            </div>
-
-            <div class="input-group">
-                <label>QQ</label>
-                <input type="text" id="qqInput" placeholder="QQ号" autocomplete="off">
-            </div>
+        <div>
+            <label style="display: block; margin-bottom: 0.5rem;">联系方式</label>
+            <div class="contact-methods-box" id="methodsContainer">
+                </div>
+            <button type="button" class="add-method-btn" onclick="addMethodRow()" style="margin-top: 0.5rem;">➕ 增加一条联系方式</button>
         </div>
 
         <div class="form-row">
@@ -294,11 +351,10 @@
         </div>
 
         <span class="campus-toggle" id="campusToggleBtn">➕ 展开校园信息 (专业/班级/学号)</span>
-
         <div class="form-row" id="studentFields">
             <div class="input-group">
                 <label>学院/专业</label>
-                <input type="text" id="majorInput" placeholder="如：集成电路与微纳电子创新学院" autocomplete="off">
+                <input type="text" id="majorInput" placeholder="如：集成电路学院" autocomplete="off">
             </div>
             <div class="input-group">
                 <label>班级</label>
@@ -310,59 +366,133 @@
             </div>
         </div>
 
-        <div style="text-align: right; margin-top: 1rem;">
-            <button id="addBtn">建档</button>
+        <div style="text-align: right;">
+            <button id="addBtn" style="display: inline-block;">建档</button>
         </div>
     </div>
 
     <div class="contacts-grid" id="contactsGrid"></div>
 
     <script>
-        // 数据初始化：联系人数据与自定义分类数据
-        let contactsData = JSON.parse(localStorage.getItem('my_contacts_v3')) || [];
-        let categoriesData = JSON.parse(localStorage.getItem('my_categories_v1')) || ['同学', '老师', '导师', '干事', '朋友'];
+        // --- 核心数据层 ---
+        // 尝试从本地缓存读取作为过渡，最终以导入导出为主
+        let contactsData = JSON.parse(localStorage.getItem('my_archive_contacts')) || [];
+        let categoriesData = JSON.parse(localStorage.getItem('my_archive_categories')) || ['同学', '老师', '导师', '朋友'];
 
-        // DOM 元素获取
+        // --- DOM 获取 ---
         const nameInput = document.getElementById('nameInput');
         const relationSelect = document.getElementById('relationSelect');
         const customRelationInput = document.getElementById('customRelationInput');
-        const wechatInput = document.getElementById('wechatInput');
-        const qqInput = document.getElementById('qqInput');
+        const methodsContainer = document.getElementById('methodsContainer');
         const initialNoteInput = document.getElementById('initialNoteInput');
-        
         const campusToggleBtn = document.getElementById('campusToggleBtn');
         const studentFields = document.getElementById('studentFields');
-        const majorInput = document.getElementById('majorInput');
-        const classInput = document.getElementById('classInput');
-        const studentIdInput = document.getElementById('studentIdInput');
-        
         const searchInput = document.getElementById('searchInput');
         const filterSelect = document.getElementById('filterSelect');
         const contactsGrid = document.getElementById('contactsGrid');
+        const importFileInput = document.getElementById('importFileInput');
 
         let isCampusFieldsVisible = false;
 
-        // 渲染下拉菜单（包含过滤器和表单中的select）
-        function renderCategorySelects() {
-            // 渲染过滤器
-            const currentFilter = filterSelect.value;
-            filterSelect.innerHTML = '<option value="全部">全部分类</option>';
-            categoriesData.forEach(cat => {
-                filterSelect.innerHTML += `<option value="${cat}">${cat}</option>`;
-            });
-            if (categoriesData.includes(currentFilter) || currentFilter === '全部') {
-                filterSelect.value = currentFilter;
+        // --- 存档导出与导入功能 ---
+        function exportData() {
+            if (contactsData.length === 0) {
+                alert('当前没有数据可以导出哦！');
+                return;
             }
-
-            // 渲染表单选择器
-            relationSelect.innerHTML = '';
-            categoriesData.forEach(cat => {
-                relationSelect.innerHTML += `<option value="${cat}">${cat}</option>`;
-            });
-            relationSelect.innerHTML += `<option value="自定义">➕ 添加自定义...</option>`;
+            // 打包数据
+            const archive = {
+                version: "1.0",
+                exportTime: new Date().toISOString(),
+                categories: categoriesData,
+                contacts: contactsData
+            };
+            const dataStr = JSON.stringify(archive, null, 2);
+            const blob = new Blob([dataStr], { type: "application/json" });
+            const url = URL.createObjectURL(blob);
+            
+            // 创建一个隐藏的 a 标签触发下载
+            const a = document.createElement('a');
+            a.href = url;
+            // 按日期生成默认文件名
+            const dateStr = new Date().toISOString().slice(0,10);
+            a.download = `人际关系存档_${dateStr}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
         }
 
-        // 监听分类选择，如果是“自定义”，显示输入框
+        importFileInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                try {
+                    const imported = JSON.parse(event.target.result);
+                    // 简单校验文件格式
+                    if (imported.contacts && imported.categories) {
+                        contactsData = imported.contacts;
+                        categoriesData = imported.categories;
+                        saveData(); // 保存到自动缓存并渲染
+                        renderCategorySelects();
+                        alert('✅ 存档导入成功！');
+                    } else {
+                        alert('❌ 文件格式不正确，请选择由本系统导出的存档文件。');
+                    }
+                } catch (err) {
+                    alert('❌ 解析存档文件失败，文件可能已损坏。');
+                }
+                // 清空 input，允许重复导入同一个文件
+                importFileInput.value = '';
+            };
+            reader.readAsText(file);
+        });
+
+        // --- 动态联系方式行功能 ---
+        function addMethodRow() {
+            const row = document.createElement('div');
+            row.className = 'method-row';
+            row.innerHTML = `
+                <select class="method-type" onchange="toggleMethodInput(this)" style="width: 100px;">
+                    <option value="微信">微信</option>
+                    <option value="QQ">QQ</option>
+                    <option value="电话">电话</option>
+                    <option value="邮箱">邮箱</option>
+                    <option value="自定义">自定义</option>
+                </select>
+                <input type="text" class="method-custom-name" placeholder="平台名称" style="display:none; width: 80px;">
+                <input type="text" class="method-value" placeholder="号码或账号" style="flex: 1;">
+                <button type="button" class="remove-row-btn" onclick="this.parentElement.remove()">×</button>
+            `;
+            methodsContainer.appendChild(row);
+        }
+
+        // 处理联系方式选择"自定义"时显示额外输入框
+        window.toggleMethodInput = function(selectEl) {
+            const customInput = selectEl.nextElementSibling;
+            if (selectEl.value === '自定义') {
+                customInput.style.display = 'block';
+                customInput.focus();
+            } else {
+                customInput.style.display = 'none';
+                customInput.value = '';
+            }
+        };
+
+        // --- 分类与UI交互 ---
+        function renderCategorySelects() {
+            const currentFilter = filterSelect.value;
+            filterSelect.innerHTML = '<option value="全部">全部分类</option>';
+            categoriesData.forEach(cat => filterSelect.innerHTML += `<option value="${cat}">${cat}</option>`);
+            if (categoriesData.includes(currentFilter) || currentFilter === '全部') filterSelect.value = currentFilter;
+
+            relationSelect.innerHTML = '';
+            categoriesData.forEach(cat => relationSelect.innerHTML += `<option value="${cat}">${cat}</option>`);
+            relationSelect.innerHTML += `<option value="自定义">➕ 添加新标签...</option>`;
+        }
+
         relationSelect.addEventListener('change', function() {
             if (this.value === '自定义') {
                 customRelationInput.style.display = 'block';
@@ -373,7 +503,6 @@
             }
         });
 
-        // 校园信息折叠逻辑
         campusToggleBtn.addEventListener('click', () => {
             isCampusFieldsVisible = !isCampusFieldsVisible;
             if (isCampusFieldsVisible) {
@@ -385,24 +514,26 @@
             }
         });
 
+        // --- 核心渲染与数据逻辑 ---
         function formatDate(timestamp) {
             const date = new Date(timestamp);
-            const month = (date.getMonth() + 1).toString().padStart(2, '0');
-            const day = date.getDate().toString().padStart(2, '0');
-            const hours = date.getHours().toString().padStart(2, '0');
-            const minutes = date.getMinutes().toString().padStart(2, '0');
-            return `${date.getFullYear()}-${month}-${day} ${hours}:${minutes}`;
+            const m = (date.getMonth() + 1).toString().padStart(2, '0');
+            const d = date.getDate().toString().padStart(2, '0');
+            const h = date.getHours().toString().padStart(2, '0');
+            const min = date.getMinutes().toString().padStart(2, '0');
+            return `${date.getFullYear()}-${m}-${d} ${h}:${min}`;
         }
 
         function renderContacts() {
             const searchTerm = searchInput.value.toLowerCase();
             const filterValue = filterSelect.value;
-            
             contactsGrid.innerHTML = '';
 
             let filteredData = contactsData.filter(contact => {
                 const matchFilter = filterValue === '全部' || contact.relation === filterValue;
-                const searchStr = `${contact.name} ${contact.wechat || ''} ${contact.qq || ''} ${contact.major || ''} ${contact.notes.map(n=>n.text).join(' ')}`.toLowerCase();
+                // 将所有联系方式的值拼接用于搜索匹配
+                const methodsStr = (contact.contactMethods || []).map(m => m.value).join(' ');
+                const searchStr = `${contact.name} ${methodsStr} ${contact.major || ''} ${contact.notes.map(n=>n.text).join(' ')}`.toLowerCase();
                 const matchSearch = searchStr.includes(searchTerm);
                 return matchFilter && matchSearch;
             });
@@ -411,23 +542,23 @@
                 const card = document.createElement('div');
                 card.className = 'contact-card';
                 
-                // 微信和QQ信息区块
-                let socialHtml = '';
-                if (contact.wechat || contact.qq) {
-                    socialHtml = `<div class="social-info">`;
-                    if (contact.wechat) socialHtml += `<span>微信: ${contact.wechat}</span>`;
-                    if (contact.qq) socialHtml += `<span>QQ: ${contact.qq}</span>`;
-                    socialHtml += `</div>`;
+                // 渲染动态联系方式
+                let methodsHtml = '';
+                if (contact.contactMethods && contact.contactMethods.length > 0) {
+                    methodsHtml = `<div class="social-info">`;
+                    contact.contactMethods.forEach(method => {
+                        methodsHtml += `<span><b>${method.label}:</b> ${method.value}</span>`;
+                    });
+                    methodsHtml += `</div>`;
                 }
 
-                // 校园信息区块
                 let studentHtml = '';
                 if (contact.major || contact.className || contact.studentId) {
                     studentHtml = `
                         <div class="student-info">
                             ${contact.major ? `<p>📚 ${contact.major}</p>` : ''}
                             ${contact.className ? `<p>🏫 ${contact.className}</p>` : ''}
-                            ${contact.studentId ? `<p>💳 学号: ${contact.studentId}</p>` : ''}
+                            ${contact.studentId ? `<p>💳 ${contact.studentId}</p>` : ''}
                         </div>
                     `;
                 }
@@ -438,10 +569,7 @@
                         ${note.text}
                     </div>
                 `).join('');
-
-                if (contact.notes.length === 0) {
-                    notesHtml = `<div class="note-item" style="color: #9ca3af;">暂无交流记录</div>`;
-                }
+                if (contact.notes.length === 0) notesHtml = `<div class="note-item" style="color: #9ca3af;">暂无交流记录</div>`;
 
                 card.innerHTML = `
                     <div class="card-header">
@@ -451,7 +579,7 @@
                         </div>
                         <button class="delete-btn" onclick="deleteContact(${contact.id})">删除</button>
                     </div>
-                    ${socialHtml}
+                    ${methodsHtml}
                     ${studentHtml}
                     <div class="notes-timeline" id="timeline-${contact.id}">
                         ${notesHtml}
@@ -469,54 +597,58 @@
             const name = nameInput.value.trim();
             if (!name) return alert('请填写姓名！');
 
-            // 处理身份标签
             let relation = relationSelect.value;
             if (relation === '自定义') {
                 const customRel = customRelationInput.value.trim();
                 if (!customRel) return alert('请填写自定义标签！');
                 relation = customRel;
-                
-                // 保存新标签到本地存储
                 if (!categoriesData.includes(relation)) {
                     categoriesData.push(relation);
-                    localStorage.setItem('my_categories_v1', JSON.stringify(categoriesData));
-                    renderCategorySelects(); // 更新下拉菜单
+                    renderCategorySelects();
                 }
             }
+
+            // 收集所有动态联系方式
+            const contactMethods = [];
+            document.querySelectorAll('.method-row').forEach(row => {
+                const type = row.querySelector('.method-type').value;
+                const customName = row.querySelector('.method-custom-name').value.trim();
+                const value = row.querySelector('.method-value').value.trim();
+                
+                if (value) {
+                    const label = type === '自定义' ? (customName || '其他') : type;
+                    contactMethods.push({ label, value });
+                }
+            });
 
             const newContact = {
                 id: Date.now(),
                 name: name,
                 relation: relation,
-                wechat: wechatInput.value.trim(),
-                qq: qqInput.value.trim(),
+                contactMethods: contactMethods, // 保存为一个数组
                 notes: []
             };
 
-            const initialNote = initialNoteInput.value.trim();
-            if (initialNote) {
-                newContact.notes.push({ timestamp: Date.now(), text: initialNote });
-            }
+            const initialNote = document.getElementById('initialNoteInput').value.trim();
+            if (initialNote) newContact.notes.push({ timestamp: Date.now(), text: initialNote });
 
-            // 读取校园信息（不管是否展开都读取，避免遗漏）
-            newContact.major = majorInput.value.trim();
-            newContact.className = classInput.value.trim();
-            newContact.studentId = studentIdInput.value.trim();
+            newContact.major = document.getElementById('majorInput').value.trim();
+            newContact.className = document.getElementById('classInput').value.trim();
+            newContact.studentId = document.getElementById('studentIdInput').value.trim();
 
             contactsData.push(newContact);
             saveData();
 
             // 重置表单
             nameInput.value = '';
-            wechatInput.value = '';
-            qqInput.value = '';
-            initialNoteInput.value = '';
-            majorInput.value = '';
-            classInput.value = '';
-            studentIdInput.value = '';
-            relationSelect.value = categoriesData[0]; // 恢复默认选项
+            document.getElementById('initialNoteInput').value = '';
+            document.getElementById('majorInput').value = '';
+            document.getElementById('classInput').value = '';
+            document.getElementById('studentIdInput').value = '';
+            relationSelect.value = categoriesData[0];
             customRelationInput.style.display = 'none';
             customRelationInput.value = '';
+            methodsContainer.innerHTML = ''; // 清空联系方式行
             nameInput.focus();
         });
 
@@ -524,7 +656,6 @@
             const inputEl = document.getElementById(`newNote-${id}`);
             const text = inputEl.value.trim();
             if (!text) return;
-
             const contact = contactsData.find(c => c.id === id);
             if (contact) {
                 contact.notes.push({ timestamp: Date.now(), text: text });
@@ -536,9 +667,7 @@
             }
         };
 
-        window.handleNoteKeypress = function(e, id) {
-            if (e.key === 'Enter') appendNote(id);
-        };
+        window.handleNoteKeypress = function(e, id) { if (e.key === 'Enter') appendNote(id); };
 
         window.deleteContact = function(id) {
             if(confirm('确定要删除这条档案吗？')) {
@@ -548,7 +677,9 @@
         };
 
         function saveData() {
-            localStorage.setItem('my_contacts_v3', JSON.stringify(contactsData));
+            // 保留一份在浏览器的 localStorage 中，防止误刷新丢失当前进度
+            localStorage.setItem('my_archive_contacts', JSON.stringify(contactsData));
+            localStorage.setItem('my_archive_categories', JSON.stringify(categoriesData));
             renderContacts();
         }
 
@@ -558,6 +689,8 @@
         // 初始化
         renderCategorySelects();
         renderContacts();
+        // 默认先给一个空的联系方式输入行
+        addMethodRow();
     </script>
 </body>
 </html>
