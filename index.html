@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>极简人际关系管理</title>
+    <style>
+        /* 极简风格 CSS */
+        :root {
+            --bg-color: #f9fafb;
+            --card-bg: #ffffff;
+            --text-main: #111827;
+            --text-muted: #6b7280;
+            --border-color: #e5e7eb;
+            --primary-color: #000000;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem;
+            box-sizing: border-box;
+        }
+
+        h1 {
+            text-align: center;
+            font-weight: 500;
+            font-size: 1.8rem;
+            margin-bottom: 2rem;
+            letter-spacing: 0.5px;
+        }
+
+        /* 表单区域样式 */
+        .form-section {
+            background: var(--card-bg);
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            align-items: flex-end;
+            margin-bottom: 3rem;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            min-width: 140px;
+        }
+
+        label {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 0.4rem;
+        }
+
+        input, select {
+            padding: 0.6rem 0.8rem;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.2s ease;
+            background-color: #fff;
+        }
+
+        input:focus, select:focus {
+            border-color: var(--text-main);
+        }
+
+        button {
+            padding: 0.6rem 1.5rem;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: opacity 0.2s;
+            height: 42px;
+            font-weight: 500;
+        }
+
+        button:hover {
+            opacity: 0.8;
+        }
+
+        /* 列表区域样式 */
+        .contacts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .contact-card {
+            background: var(--card-bg);
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+            border: 1px solid var(--border-color);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .contact-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        .contact-card h3 {
+            margin: 0 0 0.5rem 0;
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        .tag {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            background: var(--bg-color);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-bottom: 1rem;
+        }
+
+        .notes {
+            font-size: 0.95rem;
+            color: var(--text-muted);
+            line-height: 1.5;
+            margin: 0;
+            word-break: break-all;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>人际关系图谱</h1>
+
+    <div class="form-section">
+        <div class="input-group">
+            <label for="nameInput">姓名</label>
+            <input type="text" id="nameInput" placeholder="输入姓名" required autocomplete="off">
+        </div>
+        
+        <div class="input-group">
+            <label for="relationSelect">关系</label>
+            <select id="relationSelect">
+                <option value="同学">同学</option>
+                <option value="同事">同事</option>
+                <option value="家人">家人</option>
+                <option value="朋友">朋友</option>
+            </select>
+        </div>
+        
+        <div class="input-group" style="flex: 2;">
+            <label for="notesInput">备注</label>
+            <input type="text" id="notesInput" placeholder="添加一些备注信息..." autocomplete="off">
+        </div>
+        
+        <button id="addBtn">添加</button>
+    </div>
+
+    <div class="contacts-grid" id="contactsGrid">
+        </div>
+
+    <script>
+        // 获取 DOM 元素
+        const nameInput = document.getElementById('nameInput');
+        const relationSelect = document.getElementById('relationSelect');
+        const notesInput = document.getElementById('notesInput');
+        const addBtn = document.getElementById('addBtn');
+        const contactsGrid = document.getElementById('contactsGrid');
+
+        // 添加联系人功能
+        function addContact() {
+            const name = nameInput.value.trim();
+            const relation = relationSelect.value;
+            const notes = notesInput.value.trim();
+
+            // 简单验证
+            if (!name) {
+                alert('请填写联系人姓名哦！');
+                nameInput.focus();
+                return;
+            }
+
+            // 创建卡片元素
+            const card = document.createElement('div');
+            card.className = 'contact-card';
+            
+            // 组装卡片内部 HTML
+            card.innerHTML = `
+                <h3>${name}</h3>
+                <span class="tag">${relation}</span>
+                <p class="notes">${notes || '暂无备注'}</p>
+            `;
+
+            // 将新卡片插入到网格的最前面
+            contactsGrid.prepend(card);
+
+            // 清空输入框，并将焦点重置到姓名框
+            nameInput.value = '';
+            notesInput.value = '';
+            nameInput.focus();
+        }
+
+        // 绑定按钮点击事件
+        addBtn.addEventListener('click', addContact);
+
+        // 绑定回车键快捷添加功能（在备注框按回车也可以直接提交）
+        notesInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                addContact();
+            }
+        });
+    </script>
+</body>
+</html>
