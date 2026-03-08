@@ -104,6 +104,8 @@
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
             border: 1px solid var(--border-color);
             transition: transform 0.2s ease, box-shadow 0.2s ease;
+            display: flex;
+            flex-direction: column;
         }
 
         .contact-card:hover {
@@ -126,14 +128,34 @@
             font-size: 0.75rem;
             color: var(--text-muted);
             margin-bottom: 1rem;
+            align-self: flex-start;
         }
 
         .notes {
             font-size: 0.95rem;
             color: var(--text-muted);
             line-height: 1.5;
-            margin: 0;
+            margin: 0 0 1rem 0;
             word-break: break-all;
+            flex-grow: 1; /* 让备注占据剩余空间，把删除按钮推到底部 */
+        }
+
+        /* 新增：删除按钮样式 */
+        .delete-btn {
+            padding: 0.4rem 0.8rem;
+            background-color: transparent;
+            color: var(--text-muted);
+            border: 1px solid var(--border-color);
+            font-size: 0.8rem;
+            height: auto;
+            align-self: flex-end;
+        }
+
+        .delete-btn:hover {
+            background-color: #fee2e2;
+            color: #ef4444;
+            border-color: #fca5a5;
+            opacity: 1;
         }
     </style>
 </head>
@@ -169,55 +191,88 @@
         </div>
 
     <script>
-        // 获取 DOM 元素
+        // 核心改动 1：从 localStorage 读取数据，如果没有则初始化为空数组
+        let contactsData = JSON.parse(localStorage.getItem('my_contacts')) || [];
+
         const nameInput = document.getElementById('nameInput');
         const relationSelect = document.getElementById('relationSelect');
         const notesInput = document.getElementById('notesInput');
         const addBtn = document.getElementById('addBtn');
         const contactsGrid = document.getElementById('contactsGrid');
 
-        // 添加联系人功能
+        // 核心改动 2：将渲染逻辑封装成函数，每次数据变化都重新渲染页面
+        function renderContacts() {
+            contactsGrid.innerHTML = ''; // 清空当前网格内容
+            
+            // 倒序遍历数组，让新添加的联系人显示在最前面
+            [...contactsData].reverse().forEach(contact => {
+                const card = document.createElement('div');
+                card.className = 'contact-card';
+                card.innerHTML = `
+                    <h3>${contact.name}</h3>
+                    <span class="tag">${contact.relation}</span>
+                    <p class="notes">${contact.notes || '暂无备注'}</p>
+                    <button class="delete-btn" onclick="deleteContact(${contact.id})">删除</button>
+                `;
+                contactsGrid.appendChild(card);
+            });
+        }
+
+        // 添加联系人
         function addContact() {
             const name = nameInput.value.trim();
             const relation = relationSelect.value;
             const notes = notesInput.value.trim();
 
-            // 简单验证
             if (!name) {
                 alert('请填写联系人姓名哦！');
                 nameInput.focus();
                 return;
             }
 
-            // 创建卡片元素
-            const card = document.createElement('div');
-            card.className = 'contact-card';
+            // 创建包含唯一 ID (用时间戳生成) 的对象
+            const newContact = {
+                id: Date.now(), 
+                name: name,
+                relation: relation,
+                notes: notes
+            };
+
+            // 存入数组
+            contactsData.push(newContact);
             
-            // 组装卡片内部 HTML
-            card.innerHTML = `
-                <h3>${name}</h3>
-                <span class="tag">${relation}</span>
-                <p class="notes">${notes || '暂无备注'}</p>
-            `;
+            // 核心改动 3：将更新后的数组转换为 JSON 字符串并存入 localStorage
+            localStorage.setItem('my_contacts', JSON.stringify(contactsData));
 
-            // 将新卡片插入到网格的最前面
-            contactsGrid.prepend(card);
-
-            // 清空输入框，并将焦点重置到姓名框
+            // 清空输入框
             nameInput.value = '';
             notesInput.value = '';
             nameInput.focus();
+
+            // 重新渲染列表
+            renderContacts();
         }
 
-        // 绑定按钮点击事件
-        addBtn.addEventListener('click', addContact);
+        // 核心改动 4：新增删除功能
+        function deleteContact(id) {
+            // 过滤掉被删除的 ID
+            contactsData = contactsData.filter(contact => contact.id !== id);
+            // 更新 localStorage
+            localStorage.setItem('my_contacts', JSON.stringify(contactsData));
+            // 重新渲染
+            renderContacts();
+        }
 
-        // 绑定回车键快捷添加功能（在备注框按回车也可以直接提交）
+        // 绑定事件
+        addBtn.addEventListener('click', addContact);
         notesInput.addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {
                 addContact();
             }
         });
+
+        // 核心改动 5：页面首次加载时，执行一次渲染
+        renderContacts();
     </script>
 </body>
 </html>
