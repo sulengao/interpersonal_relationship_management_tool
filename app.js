@@ -391,12 +391,37 @@ function renderContacts() {
                     <span class="note-text">${note.text}</span>
                     <div class="note-actions">
                         <button class="edit-note-btn" onclick="editNote(${contact.id}, ${index})" title="编辑备注">✏️</button>
+                        <button class="edit-time-btn" onclick="editNoteTime(${contact.id}, ${index})" title="修改时间">⏰</button>
                         <button class="delete-note-btn" onclick="deleteNote(${contact.id}, ${index})" title="删除备注">🗑️</button>
                     </div>
                 </div>
             </div>
         `).join('');
         if (contact.notes.length === 0) notesHtml = `<div class="note-item" style="color: #9ca3af;">暂无交流记录</div>`;
+
+        // 大段备注显示
+        let longNoteHtml = '';
+        if (contact.longNote) {
+            longNoteHtml = `
+                <div class="long-note-section">
+                    <div class="long-note-header">
+                        <span class="long-note-title">个人备注</span>
+                        <button class="edit-long-note-btn" onclick="editLongNote(${contact.id})" title="编辑个人备注">✏️ 编辑</button>
+                    </div>
+                    <div class="long-note-content">${contact.longNote}</div>
+                </div>
+            `;
+        } else {
+            longNoteHtml = `
+                <div class="long-note-section">
+                    <div class="long-note-header">
+                        <span class="long-note-title">个人备注</span>
+                        <button class="edit-long-note-btn" onclick="editLongNote(${contact.id})" title="添加个人备注">➕ 添加</button>
+                    </div>
+                    <div class="long-note-content empty">暂无个人备注，点击"添加"按钮创建</div>
+                </div>
+            `;
+        }
 
         card.innerHTML = `
             <div class="card-header">
@@ -407,6 +432,7 @@ function renderContacts() {
                 </div>
             </div>
             ${methodsHtml} ${studentHtml}
+            ${longNoteHtml}
             <div class="notes-timeline" id="timeline-${contact.id}">${notesHtml}</div>
             <div class="add-note-box">
                 <input type="text" id="newNote-${contact.id}" placeholder="追加新备注..." onkeypress="if(event.key === 'Enter') appendNote(${contact.id})">
@@ -513,6 +539,145 @@ window.deleteNote = function(contactId, noteIndex) {
         contact.notes.splice(noteIndex, 1);
         saveData();
     }
+};
+
+// 修改备注时间戳
+window.editNoteTime = function(contactId, noteIndex) {
+    const contact = contactsData.find(c => c.id === contactId);
+    if (!contact || !contact.notes[noteIndex]) return;
+    
+    const currentTimestamp = contact.notes[noteIndex].timestamp;
+    const currentDate = new Date(currentTimestamp);
+    
+    // 创建时间选择对话框
+    const timeDialog = document.createElement('div');
+    timeDialog.style.position = 'fixed';
+    timeDialog.style.top = '50%';
+    timeDialog.style.left = '50%';
+    timeDialog.style.transform = 'translate(-50%, -50%)';
+    timeDialog.style.background = 'white';
+    timeDialog.style.padding = '2rem';
+    timeDialog.style.borderRadius = '8px';
+    timeDialog.style.boxShadow = '0 4px 6px rgba(0,0,0,0.1)';
+    timeDialog.style.zIndex = '1000';
+    timeDialog.style.minWidth = '300px';
+    
+    timeDialog.innerHTML = `
+        <h3 style="margin-top: 0; margin-bottom: 1rem;">修改时间</h3>
+        <div style="margin-bottom: 1rem;">
+            <label style="display: block; margin-bottom: 0.5rem; font-size: 0.9rem; color: #666;">日期</label>
+            <input type="date" id="editDate" style="width: 100%; padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px;">
+        </div>
+        <div style="margin-bottom: 1rem;">
+            <label style="display: block; margin-bottom: 0.5rem; font-size: 0.9rem; color: #666;">时间</label>
+            <input type="time" id="editTime" style="width: 100%; padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px;">
+        </div>
+        <div style="display: flex; gap: 1rem; justify-content: flex-end;">
+            <button id="cancelTimeBtn" style="padding: 0.5rem 1rem; border: 1px solid #ddd; background: white; border-radius: 4px; cursor: pointer;">取消</button>
+            <button id="saveTimeBtn" style="padding: 0.5rem 1rem; background: #3b82f6; color: white; border: none; border-radius: 4px; cursor: pointer;">保存</button>
+        </div>
+    `;
+    
+    document.body.appendChild(timeDialog);
+    
+    // 设置当前时间值
+    const year = currentDate.getFullYear();
+    const month = String(currentDate.getMonth() + 1).padStart(2, '0');
+    const day = String(currentDate.getDate()).padStart(2, '0');
+    const hours = String(currentDate.getHours()).padStart(2, '0');
+    const minutes = String(currentDate.getMinutes()).padStart(2, '0');
+    
+    document.getElementById('editDate').value = `${year}-${month}-${day}`;
+    document.getElementById('editTime').value = `${hours}:${minutes}`;
+    
+    // 保存按钮事件
+    document.getElementById('saveTimeBtn').addEventListener('click', () => {
+        const dateStr = document.getElementById('editDate').value;
+        const timeStr = document.getElementById('editTime').value;
+        
+        if (!dateStr || !timeStr) {
+            alert('请填写完整的日期和时间');
+            return;
+        }
+        
+        // 合并日期和时间
+        const newTimestamp = new Date(`${dateStr}T${timeStr}`).getTime();
+        
+        if (isNaN(newTimestamp)) {
+            alert('时间格式错误');
+            return;
+        }
+        
+        contact.notes[noteIndex].timestamp = newTimestamp;
+        saveData();
+        document.body.removeChild(timeDialog);
+    });
+    
+    // 取消按钮事件
+    document.getElementById('cancelTimeBtn').addEventListener('click', () => {
+        document.body.removeChild(timeDialog);
+    });
+    
+    // 点击外部关闭
+    timeDialog.addEventListener('click', (e) => {
+        if (e.target === timeDialog) {
+            document.body.removeChild(timeDialog);
+        }
+    });
+};
+
+// 编辑大段备注
+window.editLongNote = function(contactId) {
+    const contact = contactsData.find(c => c.id === contactId);
+    if (!contact) return;
+    
+    const currentNote = contact.longNote || '';
+    
+    const longNoteDialog = document.createElement('div');
+    longNoteDialog.style.position = 'fixed';
+    longNoteDialog.style.top = '50%';
+    longNoteDialog.style.left = '50%';
+    longNoteDialog.style.transform = 'translate(-50%, -50%)';
+    longNoteDialog.style.background = 'white';
+    longNoteDialog.style.padding = '2rem';
+    longNoteDialog.style.borderRadius = '8px';
+    longNoteDialog.style.boxShadow = '0 4px 6px rgba(0,0,0,0.1)';
+    longNoteDialog.style.zIndex = '1000';
+    longNoteDialog.style.minWidth = '400px';
+    
+    longNoteDialog.innerHTML = `
+        <h3 style="margin-top: 0; margin-bottom: 1rem;">编辑个人备注</h3>
+        <div style="margin-bottom: 1rem;">
+            <label style="display: block; margin-bottom: 0.5rem; font-size: 0.9rem; color: #666;">备注内容</label>
+            <textarea id="longNoteText" style="width: 100%; min-height: 150px; padding: 0.75rem; border: 1px solid #ddd; border-radius: 4px; font-family: inherit; font-size: 0.95rem; resize: vertical;">${currentNote}</textarea>
+        </div>
+        <div style="display: flex; gap: 1rem; justify-content: flex-end;">
+            <button id="cancelLongNoteBtn" style="padding: 0.5rem 1rem; border: 1px solid #ddd; background: white; border-radius: 4px; cursor: pointer;">取消</button>
+            <button id="saveLongNoteBtn" style="padding: 0.5rem 1rem; background: #10b981; color: white; border: none; border-radius: 4px; cursor: pointer;">保存</button>
+        </div>
+    `;
+    
+    document.body.appendChild(longNoteDialog);
+    
+    // 保存按钮事件
+    document.getElementById('saveLongNoteBtn').addEventListener('click', () => {
+        const newText = document.getElementById('longNoteText').value.trim();
+        contact.longNote = newText;
+        saveData();
+        document.body.removeChild(longNoteDialog);
+    });
+    
+    // 取消按钮事件
+    document.getElementById('cancelLongNoteBtn').addEventListener('click', () => {
+        document.body.removeChild(longNoteDialog);
+    });
+    
+    // 点击外部关闭
+    longNoteDialog.addEventListener('click', (e) => {
+        if (e.target === longNoteDialog) {
+            document.body.removeChild(longNoteDialog);
+        }
+    });
 };
 
 // --- 编辑联系人功能 ---

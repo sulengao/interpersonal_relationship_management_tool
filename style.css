@@ -369,5 +369,73 @@ button:hover { background-color: var(--primary-hover); }
     transform: translateY(0);
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
+
+.edit-time-btn {
+    background-color: #f59e0b;
+    color: white;
+    border: none;
+    padding: 0.25rem;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.875rem;
+    transition: all 0.2s ease;
+}
+
+.edit-time-btn:hover {
+    background-color: #d97706;
+    transform: translateY(-1px);
+}
+
+.edit-long-note-btn {
+    background-color: #10b981;
+    color: white;
+    border: none;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    transition: all 0.2s ease;
+    font-weight: 500;
+}
+
+.edit-long-note-btn:hover {
+    background-color: #059669;
+    transform: translateY(-1px);
+}
+
+.long-note-section {
+    margin-bottom: 1.5rem;
+    border-top: 1px solid var(--border-color);
+    padding-top: 1rem;
+}
+
+.long-note-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+.long-note-title {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text-main);
+}
+
+.long-note-content {
+    background: #f8fafc;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 1rem;
+    font-size: 0.9rem;
+    line-height: 1.6;
+    min-height: 60px;
+    color: var(--text-main);
+}
+
+.long-note-content.empty {
+    color: #9ca3af;
+    font-style: italic;
+}
 .remove-row-btn { background: transparent; color: #ef4444; border: none; padding: 0 0.5rem; font-size: 1.2rem; height: 36px; }
 .remove-row-btn:hover { background: #fee2e2; }
