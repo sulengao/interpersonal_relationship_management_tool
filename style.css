@@ -371,9 +371,9 @@ button:hover { background-color: var(--primary-hover); }
 }
 
 .edit-time-btn {
-    background-color: #f59e0b;
-    color: white;
-    border: none;
+    background-color: transparent;
+    color: #6b7280;
+    border: 1px solid #e5e7eb;
     padding: 0.25rem;
     border-radius: 4px;
     cursor: pointer;
@@ -382,8 +382,9 @@ button:hover { background-color: var(--primary-hover); }
 }
 
 .edit-time-btn:hover {
-    background-color: #d97706;
-    transform: translateY(-1px);
+    background-color: #f3f4f6;
+    border-color: #d1d5db;
+    color: #374151;
 }
 
 .edit-long-note-btn {

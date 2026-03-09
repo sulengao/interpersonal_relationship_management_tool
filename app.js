@@ -573,7 +573,7 @@ window.editNoteTime = function(contactId, noteIndex) {
             <input type="time" id="editTime" style="width: 100%; padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px;">
         </div>
         <div style="display: flex; gap: 1rem; justify-content: flex-end;">
-            <button id="cancelTimeBtn" style="padding: 0.5rem 1rem; border: 1px solid #ddd; background: white; border-radius: 4px; cursor: pointer;">取消</button>
+            <button id="cancelTimeBtn" style="padding: 0.5rem 1rem; border: 1px solid #6b7280; background: #6b7280; color: white; border-radius: 4px; cursor: pointer;">取消</button>
             <button id="saveTimeBtn" style="padding: 0.5rem 1rem; background: #3b82f6; color: white; border: none; border-radius: 4px; cursor: pointer;">保存</button>
         </div>
     `;
@@ -652,7 +652,7 @@ window.editLongNote = function(contactId) {
             <textarea id="longNoteText" style="width: 100%; min-height: 150px; padding: 0.75rem; border: 1px solid #ddd; border-radius: 4px; font-family: inherit; font-size: 0.95rem; resize: vertical;">${currentNote}</textarea>
         </div>
         <div style="display: flex; gap: 1rem; justify-content: flex-end;">
-            <button id="cancelLongNoteBtn" style="padding: 0.5rem 1rem; border: 1px solid #ddd; background: white; border-radius: 4px; cursor: pointer;">取消</button>
+            <button id="cancelLongNoteBtn" style="padding: 0.5rem 1rem; border: 1px solid #6b7280; background: #6b7280; color: white; border-radius: 4px; cursor: pointer;">取消</button>
             <button id="saveLongNoteBtn" style="padding: 0.5rem 1rem; background: #10b981; color: white; border: none; border-radius: 4px; cursor: pointer;">保存</button>
         </div>
     `;
