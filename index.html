@@ -52,19 +52,31 @@
             </div>
         </div>
 
-        <span class="campus-toggle" id="campusToggleBtn">➕ 展开校园信息 (学院/专业/年级/班级)</span>
+        <span class="campus-toggle" id="campusToggleBtn">➕ 展开校园信息 (学院/专业/年级/学历/班级)</span>
         <div class="form-row" id="studentFields">
             <div class="input-group">
                 <label>学院</label>
                 <input type="text" id="collegeInput" placeholder="如：集成电路与微纳电子创新学院" autocomplete="off">
+                <div id="collegeAutocomplete" class="autocomplete-dropdown"></div>
             </div>
             <div class="input-group">
                 <label>专业</label>
                 <input type="text" id="majorInput" placeholder="如：微电子科学与工程" autocomplete="off">
+                <div id="majorAutocomplete" class="autocomplete-dropdown"></div>
             </div>
             <div class="input-group">
                 <label>年级</label>
-                <input type="text" id="gradeInput" placeholder="如：2025级" autocomplete="off">
+                <select id="gradeInput" class="grade-select">
+                    <option value="">选择年级</option>
+                </select>
+            </div>
+            <div class="input-group">
+                <label>学历</label>
+                <select id="degreeInput" class="degree-select">
+                    <option value="本科">本科</option>
+                    <option value="硕士">硕士</option>
+                    <option value="博士">博士</option>
+                </select>
             </div>
             <div class="input-group">
                 <label>班级</label>

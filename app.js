@@ -20,6 +20,12 @@ const syncStatus = document.getElementById('syncStatus');
 const PREDEFINED_METHODS = ['微信', 'QQ', '电话', '邮箱', '自定义'];
 let isCampusFieldsVisible = false;
 
+// --- 自动补全相关变量 ---
+let collegeAutocompleteVisible = false;
+let majorAutocompleteVisible = false;
+let selectedCollegeIndex = -1;
+let selectedMajorIndex = -1;
+
 // --- 自动同步 & 文件管理功能 ---
 async function setupAutoSyncFile() {
     try {
@@ -149,10 +155,164 @@ campusToggleBtn.addEventListener('click', () => {
     isCampusFieldsVisible = !isCampusFieldsVisible;
     if (isCampusFieldsVisible) {
         studentFields.style.display = 'flex'; campusToggleBtn.innerText = '➖ 收起校园信息';
+        updateGradeOptions(); // 初始化年级选项
     } else {
-        studentFields.style.display = 'none'; campusToggleBtn.innerText = '➕ 展开校园信息 (学院/专业/年级/班级)';
+        studentFields.style.display = 'none'; campusToggleBtn.innerText = '➕ 展开校园信息 (学院/专业/年级/学历/班级)';
     }
 });
+
+// --- 校园信息优化功能 ---
+
+// 获取所有已存在的学院和专业数据
+function getExistingCollegesAndMajors() {
+    const colleges = new Set();
+    const majors = new Set();
+    
+    contactsData.forEach(contact => {
+        if (contact.college) colleges.add(contact.college);
+        if (contact.major) majors.add(contact.major);
+    });
+    
+    return {
+        colleges: Array.from(colleges).sort(),
+        majors: Array.from(majors).sort()
+    };
+}
+
+// 更新年级选项（根据当前年份生成）
+function updateGradeOptions() {
+    const gradeSelect = document.getElementById('gradeInput');
+    const currentYear = new Date().getFullYear();
+    const startYear = currentYear - 5; // 支持过去5年的学生
+    const endYear = currentYear + 2;   // 支持未来2年的新生
+    
+    // 清空现有选项（保留第一个"选择年级"选项）
+    gradeSelect.innerHTML = '<option value="">选择年级</option>';
+    
+    for (let year = endYear; year >= startYear; year--) {
+        const option = document.createElement('option');
+        option.value = `${year}级`;
+        option.textContent = `${year}级`;
+        gradeSelect.appendChild(option);
+    }
+    
+    // 默认选择当前年份
+    gradeSelect.value = `${currentYear}级`;
+}
+
+// 自动补全功能
+function setupAutocomplete(inputId, dropdownId, dataGetter) {
+    const input = document.getElementById(inputId);
+    const dropdown = document.getElementById(dropdownId);
+    
+    input.addEventListener('input', function() {
+        const query = this.value.toLowerCase();
+        const { colleges, majors } = getExistingCollegesAndMajors();
+        const data = dataGetter === 'college' ? colleges : majors;
+        
+        if (query.length < 1) {
+            hideAutocomplete(dropdownId);
+            return;
+        }
+        
+        const matches = data.filter(item => 
+            item.toLowerCase().includes(query)
+        );
+        
+        if (matches.length > 0) {
+            showAutocomplete(dropdownId, matches, inputId);
+        } else {
+            hideAutocomplete(dropdownId);
+        }
+    });
+    
+    input.addEventListener('focus', function() {
+        if (this.value.length > 0) {
+            const query = this.value.toLowerCase();
+            const { colleges, majors } = getExistingCollegesAndMajors();
+            const data = dataGetter === 'college' ? colleges : majors;
+            const matches = data.filter(item => item.toLowerCase().includes(query));
+            if (matches.length > 0) {
+                showAutocomplete(dropdownId, matches, inputId);
+            }
+        }
+    });
+    
+    input.addEventListener('keydown', function(e) {
+        const items = dropdown.querySelectorAll('.autocomplete-item');
+        if (items.length === 0) return;
+        
+        if (e.key === 'ArrowDown') {
+            e.preventDefault();
+            const selectedIndex = Array.from(items).findIndex(item => item.classList.contains('selected'));
+            const nextIndex = selectedIndex < items.length - 1 ? selectedIndex + 1 : 0;
+            updateSelection(items, nextIndex);
+        } else if (e.key === 'ArrowUp') {
+            e.preventDefault();
+            const selectedIndex = Array.from(items).findIndex(item => item.classList.contains('selected'));
+            const prevIndex = selectedIndex > 0 ? selectedIndex - 1 : items.length - 1;
+            updateSelection(items, prevIndex);
+        } else if (e.key === 'Enter') {
+            e.preventDefault();
+            const selectedItem = dropdown.querySelector('.autocomplete-item.selected');
+            if (selectedItem) {
+                input.value = selectedItem.textContent;
+                hideAutocomplete(dropdownId);
+            }
+        } else if (e.key === 'Escape') {
+            hideAutocomplete(dropdownId);
+        }
+    });
+    
+    // 点击选项
+    dropdown.addEventListener('click', function(e) {
+        if (e.target.classList.contains('autocomplete-item')) {
+            input.value = e.target.textContent;
+            hideAutocomplete(dropdownId);
+            input.focus();
+        }
+    });
+    
+    // 点击外部关闭
+    document.addEventListener('click', function(e) {
+        if (!input.contains(e.target) && !dropdown.contains(e.target)) {
+            hideAutocomplete(dropdownId);
+        }
+    });
+}
+
+function showAutocomplete(dropdownId, items, inputId) {
+    const dropdown = document.getElementById(dropdownId);
+    dropdown.innerHTML = '';
+    
+    items.forEach((item, index) => {
+        const div = document.createElement('div');
+        div.className = 'autocomplete-item';
+        div.textContent = item;
+        if (index === 0) div.classList.add('selected');
+        dropdown.appendChild(div);
+    });
+    
+    dropdown.style.display = 'block';
+    
+    // 设置位置
+    const input = document.getElementById(inputId);
+    const rect = input.getBoundingClientRect();
+    dropdown.style.top = (rect.bottom + 5) + 'px';
+    dropdown.style.left = rect.left + 'px';
+    dropdown.style.width = rect.width + 'px';
+}
+
+function hideAutocomplete(dropdownId) {
+    const dropdown = document.getElementById(dropdownId);
+    dropdown.style.display = 'none';
+    dropdown.innerHTML = '';
+}
+
+function updateSelection(items, index) {
+    items.forEach(item => item.classList.remove('selected'));
+    items[index].classList.add('selected');
+}
 
 // --- 核心渲染与数据逻辑 ---
 function formatDate(timestamp) {
@@ -285,3 +445,7 @@ filterSelect.addEventListener('change', renderContacts);
 renderCategorySelects();
 renderContacts();
 addMethodRow(); // 初始给一行联系方式输入框
+
+// 设置自动补全功能
+setupAutocomplete('collegeInput', 'collegeAutocomplete', 'college');
+setupAutocomplete('majorInput', 'majorAutocomplete', 'major');

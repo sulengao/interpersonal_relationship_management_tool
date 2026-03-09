@@ -163,13 +163,60 @@ button:hover { background-color: var(--primary-hover); }
 }
 .campus-toggle:hover { color: var(--primary-color); }
     
-#studentFields {
-    display: none;
-    background: #f8fafc;
-    padding: 1rem;
-    border-radius: 8px;
-    border: 1px dashed var(--border-color);
-}
+        #studentFields {
+            display: none;
+            background: #f8fafc;
+            padding: 1rem;
+            border-radius: 8px;
+            border: 1px dashed var(--border-color);
+        }
+
+        .autocomplete-dropdown {
+            position: absolute;
+            background: white;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            max-height: 150px;
+            overflow-y: auto;
+            z-index: 1000;
+            display: none;
+            margin-top: 0.25rem;
+        }
+
+        .autocomplete-item {
+            padding: 0.5rem 0.75rem;
+            cursor: pointer;
+            font-size: 0.9rem;
+            color: var(--text-main);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .autocomplete-item:last-child {
+            border-bottom: none;
+        }
+
+        .autocomplete-item:hover {
+            background-color: var(--bg-color);
+        }
+
+        .autocomplete-item.selected {
+            background-color: var(--accent-color);
+            color: white;
+        }
+
+        .grade-select, .degree-select {
+            padding: 0.6rem 0.8rem;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 0.95rem;
+            background-color: white;
+            cursor: pointer;
+        }
+
+        .input-group {
+            position: relative;
+        }
 
 .contacts-grid {
     display: grid;
