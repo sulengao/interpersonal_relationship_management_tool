@@ -180,12 +180,74 @@ function getExistingCollegesAndMajors() {
     };
 }
 
+// 获取所有已存在的年级数据
+function getExistingGrades() {
+    const grades = new Set();
+    
+    contactsData.forEach(contact => {
+        if (contact.grade) grades.add(contact.grade);
+    });
+    
+    return Array.from(grades).sort();
+}
+
+// 渲染筛选下拉框
+function renderFilterSelects() {
+    // 学院筛选
+    const collegeFilter = document.getElementById('collegeFilter');
+    const existingColleges = getExistingCollegesAndMajors().colleges;
+    const currentCollegeFilter = collegeFilter.value;
+    
+    collegeFilter.innerHTML = '<option value="全部">全部学院</option>';
+    existingColleges.forEach(college => {
+        const option = document.createElement('option');
+        option.value = college;
+        option.textContent = college;
+        collegeFilter.appendChild(option);
+    });
+    if (existingColleges.includes(currentCollegeFilter)) {
+        collegeFilter.value = currentCollegeFilter;
+    }
+
+    // 专业筛选
+    const majorFilter = document.getElementById('majorFilter');
+    const existingMajors = getExistingCollegesAndMajors().majors;
+    const currentMajorFilter = majorFilter.value;
+    
+    majorFilter.innerHTML = '<option value="全部">全部专业</option>';
+    existingMajors.forEach(major => {
+        const option = document.createElement('option');
+        option.value = major;
+        option.textContent = major;
+        majorFilter.appendChild(option);
+    });
+    if (existingMajors.includes(currentMajorFilter)) {
+        majorFilter.value = currentMajorFilter;
+    }
+
+    // 年级筛选
+    const gradeFilter = document.getElementById('gradeFilter');
+    const existingGrades = getExistingGrades();
+    const currentGradeFilter = gradeFilter.value;
+    
+    gradeFilter.innerHTML = '<option value="全部">全部年级</option>';
+    existingGrades.forEach(grade => {
+        const option = document.createElement('option');
+        option.value = grade;
+        option.textContent = grade;
+        gradeFilter.appendChild(option);
+    });
+    if (existingGrades.includes(currentGradeFilter)) {
+        gradeFilter.value = currentGradeFilter;
+    }
+}
+
 // 更新年级选项（根据当前年份生成）
 function updateGradeOptions() {
     const gradeSelect = document.getElementById('gradeInput');
     const currentYear = new Date().getFullYear();
     const startYear = currentYear - 5; // 支持过去5年的学生
-    const endYear = currentYear + 2;   // 支持未来2年的新生
+    const endYear = currentYear + 3;   // 支持未来3年的新生
     
     // 清空现有选项（保留第一个"选择年级"选项）
     gradeSelect.innerHTML = '<option value="">选择年级</option>';
@@ -355,13 +417,44 @@ function formatDate(timestamp) {
 function renderContacts() {
     const searchTerm = searchInput.value.toLowerCase();
     const filterValue = filterSelect.value;
+    
+    // 获取筛选条件
+    const collegeFilter = document.getElementById('collegeFilter').value;
+    const majorFilter = document.getElementById('majorFilter').value;
+    const gradeFilter = document.getElementById('gradeFilter').value;
+    const degreeFilter = document.getElementById('degreeFilter').value;
+    
     contactsGrid.innerHTML = '';
 
     let filteredData = contactsData.filter(contact => {
+        // 基础筛选：身份分类
         const matchFilter = filterValue === '全部' || contact.relation === filterValue;
+        
+        // 校园信息筛选
+        const matchCollege = collegeFilter === '全部' || contact.college === collegeFilter;
+        const matchMajor = majorFilter === '全部' || contact.major === majorFilter;
+        const matchGrade = gradeFilter === '全部' || contact.grade === gradeFilter;
+        const matchDegree = degreeFilter === '全部' || contact.degree === degreeFilter;
+        
+        // 搜索功能：支持所有个人信息字段
         const methodsStr = (contact.contactMethods || []).map(m => m.value).join(' ');
-        const searchStr = `${contact.name} ${methodsStr} ${contact.college || ''} ${contact.major || ''} ${contact.notes.map(n=>n.text).join(' ')}`.toLowerCase();
-        return matchFilter && searchStr.includes(searchTerm);
+        const searchStr = `
+            ${contact.name || ''}
+            ${contact.relation || ''}
+            ${methodsStr || ''}
+            ${contact.college || ''}
+            ${contact.major || ''}
+            ${contact.grade || ''}
+            ${contact.degree || ''}
+            ${contact.className || ''}
+            ${contact.studentId || ''}
+            ${contact.notes.map(n => n.text).join(' ') || ''}
+            ${contact.longNote || ''}
+        `.toLowerCase();
+        
+        const matchSearch = searchTerm === '' || searchStr.includes(searchTerm);
+        
+        return matchFilter && matchCollege && matchMajor && matchGrade && matchDegree && matchSearch;
     });
 
     [...filteredData].reverse().forEach(contact => {
@@ -838,15 +931,36 @@ async function saveData() {
 searchInput.addEventListener('input', renderContacts);
 filterSelect.addEventListener('change', renderContacts);
 
+// 筛选功能事件监听
+document.getElementById('collegeFilter').addEventListener('change', renderContacts);
+document.getElementById('majorFilter').addEventListener('change', renderContacts);
+document.getElementById('gradeFilter').addEventListener('change', renderContacts);
+document.getElementById('degreeFilter').addEventListener('change', renderContacts);
+document.getElementById('clearFiltersBtn').addEventListener('click', clearFilters);
+
 // 编辑功能事件监听
 document.getElementById('saveBtn').addEventListener('click', saveContact);
 document.getElementById('cancelBtn').addEventListener('click', cancelEdit);
 
+// 清除所有筛选条件
+function clearFilters() {
+    document.getElementById('searchInput').value = '';
+    document.getElementById('filterSelect').value = '全部';
+    document.getElementById('collegeFilter').value = '全部';
+    document.getElementById('majorFilter').value = '全部';
+    document.getElementById('gradeFilter').value = '全部';
+    document.getElementById('degreeFilter').value = '全部';
+    renderContacts();
+}
+
 // 初始化
 renderCategorySelects();
+renderFilterSelects(); // 添加筛选下拉框的初始化
 renderContacts();
 addMethodRow(); // 初始给一行联系方式输入框
 
 // 设置自动补全功能
 setupAutocomplete('collegeInput', 'collegeAutocomplete', 'college');
 setupAutocomplete('majorInput', 'majorAutocomplete', 'major');
+
+

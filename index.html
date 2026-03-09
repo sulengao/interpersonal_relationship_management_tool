@@ -24,6 +24,42 @@
         <select id="filterSelect"><option value="全部">全部分类</option></select>
     </div>
 
+    <div class="filter-section">
+        <h3 style="margin: 0 0 1rem 0; font-size: 1rem; color: var(--text-muted);">校园信息筛选</h3>
+        <div class="filter-row">
+            <div class="filter-group">
+                <label>学院</label>
+                <select id="collegeFilter">
+                    <option value="全部">全部学院</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label>专业</label>
+                <select id="majorFilter">
+                    <option value="全部">全部专业</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label>年级</label>
+                <select id="gradeFilter">
+                    <option value="全部">全部年级</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label>学历</label>
+                <select id="degreeFilter">
+                    <option value="全部">全部学历</option>
+                    <option value="本科">本科</option>
+                    <option value="硕士">硕士</option>
+                    <option value="博士">博士</option>
+                </select>
+            </div>
+        </div>
+        <div style="margin-top: 1rem; text-align: right;">
+            <button id="clearFiltersBtn" style="background: #6b7280; color: white; border: none; padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer; font-size: 0.9rem;">清除筛选</button>
+        </div>
+    </div>
+
     <div class="form-section">
         <div class="form-row">
             <div class="input-group">
