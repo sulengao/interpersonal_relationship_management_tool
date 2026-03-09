@@ -295,12 +295,25 @@ function showAutocomplete(dropdownId, items, inputId) {
     
     dropdown.style.display = 'block';
     
-    // 设置位置
+    // 设置位置 - 修复定位问题
     const input = document.getElementById(inputId);
-    const rect = input.getBoundingClientRect();
-    dropdown.style.top = (rect.bottom + 5) + 'px';
-    dropdown.style.left = rect.left + 'px';
-    dropdown.style.width = rect.width + 'px';
+    const inputRect = input.getBoundingClientRect();
+    const containerRect = input.closest('.input-group').getBoundingClientRect();
+    
+    // 相对于父容器定位
+    dropdown.style.position = 'absolute';
+    dropdown.style.top = (inputRect.bottom - containerRect.top + 5) + 'px';
+    dropdown.style.left = '0';
+    dropdown.style.width = '100%';
+    
+    // 确保不会超出视窗
+    const viewportWidth = window.innerWidth;
+    const dropdownWidth = dropdown.offsetWidth;
+    const inputLeft = inputRect.left;
+    
+    if (inputLeft + dropdownWidth > viewportWidth) {
+        dropdown.style.left = (viewportWidth - inputLeft - dropdownWidth) + 'px';
+    }
 }
 
 function hideAutocomplete(dropdownId) {
