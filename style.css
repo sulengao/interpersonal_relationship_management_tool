@@ -81,6 +81,44 @@ h1 {
     margin-bottom: 2rem;
 }
 
+.filter-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    cursor: pointer;
+    user-select: none;
+}
+.filter-header h3 {
+    margin: 0;
+    font-size: 1rem;
+    color: var(--text-main);
+}
+.toggle-btn {
+    background: none;
+    border: none;
+    font-size: 1.2rem;
+    color: #64748b;
+    cursor: pointer;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    transition: all 0.2s;
+}
+.toggle-btn:hover {
+    background: #e2e8f0;
+    color: #334155;
+}
+.filters-content {
+    max-height: 1000px;
+    overflow: hidden;
+    transition: max-height 0.3s ease-in-out, opacity 0.3s ease-in-out;
+    opacity: 1;
+}
+.filters-content.collapsed {
+    max-height: 0;
+    opacity: 0;
+}
+
 .filter-row {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -148,6 +186,30 @@ h1 {
     flex-direction: column;
     gap: 1.2rem;
     margin-bottom: 3rem;
+}
+
+.form-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    cursor: pointer;
+    user-select: none;
+}
+.form-header h3 {
+    margin: 0;
+    font-size: 1rem;
+    color: var(--text-main);
+}
+.form-content {
+    max-height: 1000px;
+    overflow: hidden;
+    transition: max-height 0.3s ease-in-out, opacity 0.3s ease-in-out;
+    opacity: 1;
+}
+.form-content.collapsed {
+    max-height: 0;
+    opacity: 0;
 }
 
 .form-row {

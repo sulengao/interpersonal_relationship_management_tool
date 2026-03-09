@@ -25,116 +25,127 @@
     </div>
 
     <div class="filter-section">
-        <h3 style="margin: 0 0 1rem 0; font-size: 1rem; color: var(--text-muted);">校园信息筛选</h3>
-        <div class="filter-row">
-            <div class="filter-group">
-                <label>学院</label>
-                <select id="collegeFilter">
-                    <option value="全部">全部学院</option>
-                </select>
-            </div>
-            <div class="filter-group">
-                <label>专业</label>
-                <select id="majorFilter">
-                    <option value="全部">全部专业</option>
-                </select>
-            </div>
-            <div class="filter-group">
-                <label>年级</label>
-                <select id="gradeFilter">
-                    <option value="全部">全部年级</option>
-                </select>
-            </div>
-            <div class="filter-group">
-                <label>学历</label>
-                <select id="degreeFilter">
-                    <option value="全部">全部学历</option>
-                    <option value="本科">本科</option>
-                    <option value="硕士">硕士</option>
-                    <option value="博士">博士</option>
-                </select>
-            </div>
+        <div class="filter-header">
+            <h3>筛选条件</h3>
+            <button id="toggleFiltersBtn" class="toggle-btn" title="折叠/展开筛选">▼</button>
         </div>
-        <div style="margin-top: 1rem; text-align: right;">
-            <button id="clearFiltersBtn" style="background: #6b7280; color: white; border: none; padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer; font-size: 0.9rem;">清除筛选</button>
+        <div id="filtersContent" class="filters-content">
+            <div class="filter-row">
+                <div class="filter-group">
+                    <label>学院</label>
+                    <select id="collegeFilter">
+                        <option value="全部">全部学院</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>专业</label>
+                    <select id="majorFilter">
+                        <option value="全部">全部专业</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>年级</label>
+                    <select id="gradeFilter">
+                        <option value="全部">全部年级</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>学历</label>
+                    <select id="degreeFilter">
+                        <option value="全部">全部学历</option>
+                        <option value="本科">本科</option>
+                        <option value="硕士">硕士</option>
+                        <option value="博士">博士</option>
+                    </select>
+                </div>
+            </div>
+            <div style="margin-top: 1rem; text-align: right;">
+                <button id="clearFiltersBtn" style="background: #6b7280; color: white; border: none; padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer; font-size: 0.9rem;">清除筛选</button>
+            </div>
         </div>
     </div>
 
     <div class="form-section">
-        <div class="form-row">
-            <div class="input-group">
-                <label>姓名</label>
-                <input type="text" id="nameInput" placeholder="输入姓名" required autocomplete="off">
-            </div>
-            <div class="input-group">
-                <label>身份</label>
-                <select id="relationSelect">
-                    <option value="同学">同学</option>
-                    <option value="老师">老师</option>
-                    <option value="导师">导师</option>
-                    <option value="干事">干事</option>
-                    <option value="自定义">➕ 添加新标签...</option>
-                </select>
-                <input type="text" id="customRelationInput" placeholder="输入新标签" style="display: none; margin-top: 0.5rem;">
-            </div>
+        <div class="form-header">
+            <h3>新建联系人</h3>
+            <button id="toggleFormBtn" class="toggle-btn" title="折叠/展开表单">▼</button>
         </div>
+        <div id="formContent" class="form-content">
+            <div class="form-row">
+                <div class="input-group">
+                    <label>姓名</label>
+                    <input type="text" id="nameInput" placeholder="输入姓名" required autocomplete="off">
+                </div>
+                <div class="input-group">
+                    <label>身份</label>
+                    <select id="relationSelect">
+                        <option value="同学">同学</option>
+                        <option value="老师">老师</option>
+                        <option value="导师">导师</option>
+                        <option value="干事">干事</option>
+                        <option value="自定义">➕ 添加新标签...</option>
+                    </select>
+                    <input type="text" id="customRelationInput" placeholder="输入新标签" style="display: none; margin-top: 0.5rem;">
+                </div>
+            </div>
 
-        <div>
-            <label style="display: block; margin-bottom: 0.5rem;">联系方式</label>
-            <div class="contact-methods-box" id="methodsContainer"></div>
-            <button type="button" class="add-method-btn" onclick="addMethodRow()" style="margin-top: 0.5rem;">➕ 增加一条联系方式</button>
-        </div>
+            <div>
+                <label style="display: block; margin-bottom: 0.5rem;">联系方式</label>
+                <div class="contact-methods-box" id="methodsContainer"></div>
+                <button type="button" class="add-method-btn" onclick="addMethodRow()" style="margin-top: 0.5rem;">➕ 增加一条联系方式</button>
+            </div>
 
-        <div class="form-row">
-            <div class="input-group" style="flex: 1;">
-                <label>固有备注</label>
-                <input type="text" id="initialNoteInput" placeholder="记录重要信息，可随时修改" autocomplete="off">
+            <div class="form-row">
+                <div class="input-group" style="flex: 1;">
+                    <label>固有备注</label>
+                    <input type="text" id="initialNoteInput" placeholder="记录重要信息，可随时修改" autocomplete="off">
+                </div>
             </div>
-        </div>
 
-        <span class="campus-toggle" id="campusToggleBtn">➕ 展开校园信息 (学院/专业/年级/学历/班级)</span>
-        <div class="form-row" id="studentFields">
-            <div class="input-group">
-                <label>学院</label>
-                <input type="text" id="collegeInput" placeholder="如：集成电路与微纳电子创新学院" autocomplete="off">
-                <div id="collegeAutocomplete" class="autocomplete-dropdown"></div>
+            <span class="campus-toggle" id="campusToggleBtn">➕ 展开校园信息 (学院/专业/年级/学历/班级)</span>
+            <div class="form-row" id="studentFields">
+                <div class="input-group">
+                    <label>学院</label>
+                    <input type="text" id="collegeInput" placeholder="如：集成电路与微纳电子创新学院" autocomplete="off">
+                    <div id="collegeAutocomplete" class="autocomplete-dropdown"></div>
+                </div>
+                <div class="input-group">
+                    <label>专业</label>
+                    <input type="text" id="majorInput" placeholder="如：微电子科学与工程" autocomplete="off">
+                    <div id="majorAutocomplete" class="autocomplete-dropdown"></div>
+                </div>
+                <div class="input-group">
+                    <label>年级</label>
+                    <select id="gradeInput" class="grade-select" onchange="handleGradeChange(this)">
+                        <option value="">选择年级</option>
+                    </select>
+                    <input type="text" id="customGradeInput" placeholder="请输入自定义年级" style="display: none; margin-top: 0.5rem;">
+                </div>
+                <div class="input-group">
+                    <label>学历</label>
+                    <select id="degreeInput" class="degree-select">
+                        <option value="本科">本科</option>
+                        <option value="硕士">硕士</option>
+                        <option value="博士">博士</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label>班级</label>
+                    <input type="text" id="classInput" placeholder="如：1班" autocomplete="off">
+                </div>
+                <div class="input-group">
+                    <label>学号</label>
+                    <input type="text" id="studentIdInput" placeholder="选填" autocomplete="off">
+                </div>
             </div>
-            <div class="input-group">
-                <label>专业</label>
-                <input type="text" id="majorInput" placeholder="如：微电子科学与工程" autocomplete="off">
-                <div id="majorAutocomplete" class="autocomplete-dropdown"></div>
-            </div>
-            <div class="input-group">
-                <label>年级</label>
-                <select id="gradeInput" class="grade-select" onchange="handleGradeChange(this)">
-                    <option value="">选择年级</option>
-                </select>
-                <input type="text" id="customGradeInput" placeholder="请输入自定义年级" style="display: none; margin-top: 0.5rem;">
-            </div>
-            <div class="input-group">
-                <label>学历</label>
-                <select id="degreeInput" class="degree-select">
-                    <option value="本科">本科</option>
-                    <option value="硕士">硕士</option>
-                    <option value="博士">博士</option>
-                </select>
-            </div>
-            <div class="input-group">
-                <label>班级</label>
-                <input type="text" id="classInput" placeholder="如：1班" autocomplete="off">
-            </div>
-            <div class="input-group">
-                <label>学号</label>
-                <input type="text" id="studentIdInput" placeholder="选填" autocomplete="off">
-            </div>
-        </div>
 
-        <div style="text-align: right;">
-            <button id="addBtn" style="display: inline-block;">建档</button>
-            <button id="saveBtn" style="display: none; background-color: #10b981;">保存</button>
-            <button id="cancelBtn" style="display: none; background-color: #6b7280;">取消</button>
-            <div id="editModeIndicator" style="display: none; color: #3b82f6; font-size: 0.85rem; margin-top: 0.5rem;">
-                ✏️ 编辑模式 - 修改后点击"保存"或"取消"
+            <div style="text-align: right;">
+                <button id="addBtn" style="display: inline-block;">建档</button>
+                <button id="saveBtn" style="display: none; background-color: #10b981;">保存</button>
+                <button id="cancelBtn" style="display: none; background-color: #6b7280;">取消</button>
+                <div id="editModeIndicator" style="display: none; color: #3b82f6; font-size: 0.85rem; margin-top: 0.5rem;">
+                    ✏️ 编辑模式 - 修改后点击"保存"或"取消"
+                </div>
             </div>
         </div>
     </div>

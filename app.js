@@ -953,6 +953,53 @@ function clearFilters() {
     renderContacts();
 }
 
+// --- 折叠功能 ---
+function setupCollapsibleSections() {
+    const toggleFiltersBtn = document.getElementById('toggleFiltersBtn');
+    const filtersContent = document.getElementById('filtersContent');
+    const toggleFormBtn = document.getElementById('toggleFormBtn');
+    const formContent = document.getElementById('formContent');
+    
+    // 筛选区域折叠
+    toggleFiltersBtn.addEventListener('click', () => {
+        const isCollapsed = filtersContent.classList.contains('collapsed');
+        filtersContent.classList.toggle('collapsed', !isCollapsed);
+        toggleFiltersBtn.textContent = isCollapsed ? '▼' : '▶';
+    });
+    
+    // 新建联系人表单折叠
+    toggleFormBtn.addEventListener('click', () => {
+        const isCollapsed = formContent.classList.contains('collapsed');
+        formContent.classList.toggle('collapsed', !isCollapsed);
+        toggleFormBtn.textContent = isCollapsed ? '▼' : '▶';
+    });
+    
+    // 搜索和筛选时自动折叠新建联系人表单
+    const searchInput = document.getElementById('searchInput');
+    const filterSelect = document.getElementById('filterSelect');
+    const collegeFilter = document.getElementById('collegeFilter');
+    const majorFilter = document.getElementById('majorFilter');
+    const gradeFilter = document.getElementById('gradeFilter');
+    const degreeFilter = document.getElementById('degreeFilter');
+    const clearFiltersBtn = document.getElementById('clearFiltersBtn');
+    
+    function autoCollapseForm() {
+        if (!formContent.classList.contains('collapsed')) {
+            formContent.classList.add('collapsed');
+            toggleFormBtn.textContent = '▶';
+        }
+    }
+    
+    // 为所有筛选和搜索元素添加事件监听
+    [searchInput, filterSelect, collegeFilter, majorFilter, gradeFilter, degreeFilter].forEach(element => {
+        element.addEventListener('input', autoCollapseForm);
+        element.addEventListener('change', autoCollapseForm);
+    });
+    
+    // 清除筛选按钮点击时也折叠表单
+    clearFiltersBtn.addEventListener('click', autoCollapseForm);
+}
+
 // 初始化
 renderCategorySelects();
 renderFilterSelects(); // 添加筛选下拉框的初始化
@@ -962,5 +1009,8 @@ addMethodRow(); // 初始给一行联系方式输入框
 // 设置自动补全功能
 setupAutocomplete('collegeInput', 'collegeAutocomplete', 'college');
 setupAutocomplete('majorInput', 'majorAutocomplete', 'major');
+
+// 设置折叠功能
+setupCollapsibleSections();
 
 
