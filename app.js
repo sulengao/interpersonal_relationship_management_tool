@@ -2,6 +2,7 @@
 let contactsData = JSON.parse(localStorage.getItem('my_archive_contacts')) || [];
 let categoriesData = JSON.parse(localStorage.getItem('my_archive_categories')) || ['同学', '老师', '导师', '干事'];
 let fileHandle = null; // 用于存储用户授权的文件句柄
+let editingContactId = null; // 当前正在编辑的联系人ID
 
 // --- DOM 获取 ---
 const nameInput = document.getElementById('nameInput');
@@ -400,7 +401,10 @@ function renderContacts() {
         card.innerHTML = `
             <div class="card-header">
                 <div><h3>${contact.name}</h3><span class="tag">${contact.relation}</span></div>
-                <button class="delete-btn" onclick="deleteContact(${contact.id})">删除</button>
+                <div class="card-actions">
+                    <button class="edit-btn" onclick="editContact(${contact.id})">编辑</button>
+                    <button class="delete-btn" onclick="deleteContact(${contact.id})">删除</button>
+                </div>
             </div>
             ${methodsHtml} ${studentHtml}
             <div class="notes-timeline" id="timeline-${contact.id}">${notesHtml}</div>
@@ -511,6 +515,151 @@ window.deleteNote = function(contactId, noteIndex) {
     }
 };
 
+// --- 编辑联系人功能 ---
+function editContact(id) {
+    const contact = contactsData.find(c => c.id === id);
+    if (!contact) return;
+
+    editingContactId = id;
+    
+    // 切换到编辑模式
+    document.getElementById('addBtn').style.display = 'none';
+    document.getElementById('saveBtn').style.display = 'inline-block';
+    document.getElementById('cancelBtn').style.display = 'inline-block';
+    document.getElementById('editModeIndicator').style.display = 'block';
+    
+    // 填充表单数据
+    nameInput.value = contact.name;
+    relationSelect.value = contact.relation;
+    customRelationInput.style.display = 'none';
+    customRelationInput.value = '';
+    
+    // 填充联系方式
+    methodsContainer.innerHTML = '';
+    if (contact.contactMethods && contact.contactMethods.length > 0) {
+        contact.contactMethods.forEach(method => {
+            addMethodRow();
+            const rows = methodsContainer.querySelectorAll('.method-row');
+            const lastRow = rows[rows.length - 1];
+            const typeSelect = lastRow.querySelector('.method-type');
+            const customInput = lastRow.querySelector('.method-custom-name');
+            const valueInput = lastRow.querySelector('.method-value');
+            
+            if (PREDEFINED_METHODS.includes(method.label)) {
+                typeSelect.value = method.label;
+                customInput.style.display = 'none';
+            } else {
+                typeSelect.value = '自定义';
+                customInput.style.display = 'block';
+                customInput.value = method.label;
+            }
+            valueInput.value = method.value;
+        });
+    } else {
+        addMethodRow(); // 至少保留一行
+    }
+    
+    // 填充校园信息
+    document.getElementById('collegeInput').value = contact.college || '';
+    document.getElementById('majorInput').value = contact.major || '';
+    document.getElementById('gradeInput').value = contact.grade || '';
+    document.getElementById('degreeInput').value = contact.degree || '本科';
+    document.getElementById('classInput').value = contact.className || '';
+    document.getElementById('studentIdInput').value = contact.studentId || '';
+    
+    // 显示校园信息区域
+    if (!isCampusFieldsVisible) {
+        campusToggleBtn.click();
+    }
+    
+    // 重新初始化自动补全功能（确保编辑模式下也能使用）
+    setupAutocomplete('collegeInput', 'collegeAutocomplete', 'college');
+    setupAutocomplete('majorInput', 'majorAutocomplete', 'major');
+    
+    // 滚动到表单顶部
+    document.querySelector('.form-section').scrollIntoView({ behavior: 'smooth' });
+}
+
+function saveContact() {
+    if (!editingContactId) return;
+
+    const name = nameInput.value.trim();
+    if (!name) return alert('请填写姓名！');
+
+    let relation = relationSelect.value;
+    if (relation === '自定义') {
+        relation = customRelationInput.value.trim();
+        if (!relation) return alert('请填写自定义标签！');
+        if (!categoriesData.includes(relation)) { categoriesData.push(relation); renderCategorySelects(); }
+    }
+
+    // 处理年级选择
+    const gradeSelect = document.getElementById('gradeInput');
+    const customGradeInput = document.getElementById('customGradeInput');
+    let grade = gradeSelect.value;
+    
+    // 如果选择了自定义年级，使用自定义输入框的值
+    if (grade === 'custom' && customGradeInput.value.trim()) {
+        grade = customGradeInput.value.trim();
+    } else if (grade === 'custom') {
+        grade = ''; // 如果没有输入自定义年级，留空
+    }
+
+    const contactMethods = [];
+    document.querySelectorAll('.method-row').forEach(row => {
+        const type = row.querySelector('.method-type').value;
+        const value = row.querySelector('.method-value').value.trim();
+        if (value) contactMethods.push({ label: type === '自定义' ? (row.querySelector('.method-custom-name').value.trim() || '其他') : type, value });
+    });
+
+    const updatedContact = {
+        id: editingContactId,
+        name, 
+        relation, 
+        contactMethods, 
+        notes: contactsData.find(c => c.id === editingContactId).notes, // 保留原有备注
+        college: document.getElementById('collegeInput').value.trim(),
+        major: document.getElementById('majorInput').value.trim(),
+        grade: grade,
+        degree: document.getElementById('degreeInput').value.trim(),
+        className: document.getElementById('classInput').value.trim(),
+        studentId: document.getElementById('studentIdInput').value.trim()
+    };
+
+    // 更新联系人数据
+    const index = contactsData.findIndex(c => c.id === editingContactId);
+    if (index !== -1) {
+        contactsData[index] = updatedContact;
+        saveData();
+        exitEditMode();
+    }
+}
+
+function cancelEdit() {
+    exitEditMode();
+}
+
+function exitEditMode() {
+    editingContactId = null;
+    
+    // 恢复到添加模式
+    document.getElementById('addBtn').style.display = 'inline-block';
+    document.getElementById('saveBtn').style.display = 'none';
+    document.getElementById('cancelBtn').style.display = 'none';
+    document.getElementById('editModeIndicator').style.display = 'none';
+    
+    // 重置表单
+    ['nameInput', 'initialNoteInput', 'collegeInput', 'majorInput', 'gradeInput', 'classInput', 'studentIdInput'].forEach(id => document.getElementById(id).value = '');
+    relationSelect.value = categoriesData[0];
+    customRelationInput.style.display = 'none';
+    customRelationInput.value = '';
+    customGradeInput.style.display = 'none';
+    customGradeInput.value = '';
+    methodsContainer.innerHTML = '';
+    addMethodRow(); // 恢复默认的1行联系方式
+    nameInput.focus();
+}
+
 async function saveData() {
     // 1. 保存在浏览器的 localStorage 作为热备
     localStorage.setItem('my_archive_contacts', JSON.stringify(contactsData));
@@ -523,6 +672,10 @@ async function saveData() {
 
 searchInput.addEventListener('input', renderContacts);
 filterSelect.addEventListener('change', renderContacts);
+
+// 编辑功能事件监听
+document.getElementById('saveBtn').addEventListener('click', saveContact);
+document.getElementById('cancelBtn').addEventListener('click', cancelEdit);
 
 // 初始化
 renderCategorySelects();
