@@ -294,6 +294,21 @@ button:hover { background-color: var(--primary-hover); }
 }
 .note-item { margin-bottom: 0.8rem; font-size: 0.9rem; line-height: 1.4; }
 .note-time { font-size: 0.7rem; color: #9ca3af; display: block; margin-bottom: 0.1rem; }
+.note-content { display: flex; justify-content: space-between; align-items: flex-start; gap: 0.5rem; }
+.note-text { flex: 1; color: var(--text-main); }
+.note-actions { display: flex; gap: 0.25rem; opacity: 0; transition: opacity 0.2s; }
+.note-item:hover .note-actions { opacity: 1; }
+.edit-note-btn, .delete-note-btn {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 0.25rem;
+    border-radius: 4px;
+    font-size: 0.875rem;
+    transition: background-color 0.2s;
+}
+.edit-note-btn:hover { background-color: #e5e7eb; }
+.delete-note-btn:hover { background-color: #fee2e2; }
 
 .add-note-box {
     display: flex;

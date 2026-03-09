@@ -196,8 +196,26 @@ function updateGradeOptions() {
         gradeSelect.appendChild(option);
     }
     
-    // 默认选择当前年份
-    gradeSelect.value = `${currentYear}级`;
+    // 添加自定义年级选项
+    const customOption = document.createElement('option');
+    customOption.value = 'custom';
+    customOption.textContent = '➕ 自定义年级...';
+    gradeSelect.appendChild(customOption);
+    
+    // 默认选择2025级
+    gradeSelect.value = '2025级';
+}
+
+// 处理年级选择变化
+function handleGradeChange(select) {
+    const customInput = document.getElementById('customGradeInput');
+    if (select.value === 'custom') {
+        customInput.style.display = 'block';
+        customInput.focus();
+    } else {
+        customInput.style.display = 'none';
+        customInput.value = '';
+    }
 }
 
 // 自动补全功能
@@ -365,7 +383,18 @@ function renderContacts() {
             studentHtml += `</div>`;
         }
 
-        let notesHtml = contact.notes.map(note => `<div class="note-item"><span class="note-time">${formatDate(note.timestamp)}</span>${note.text}</div>`).join('');
+        let notesHtml = contact.notes.map((note, index) => `
+            <div class="note-item">
+                <span class="note-time">${formatDate(note.timestamp)}</span>
+                <div class="note-content">
+                    <span class="note-text">${note.text}</span>
+                    <div class="note-actions">
+                        <button class="edit-note-btn" onclick="editNote(${contact.id}, ${index})" title="编辑备注">✏️</button>
+                        <button class="delete-note-btn" onclick="deleteNote(${contact.id}, ${index})" title="删除备注">🗑️</button>
+                    </div>
+                </div>
+            </div>
+        `).join('');
         if (contact.notes.length === 0) notesHtml = `<div class="note-item" style="color: #9ca3af;">暂无交流记录</div>`;
 
         card.innerHTML = `
@@ -402,11 +431,27 @@ document.getElementById('addBtn').addEventListener('click', () => {
         if (value) contactMethods.push({ label: type === '自定义' ? (row.querySelector('.method-custom-name').value.trim() || '其他') : type, value });
     });
 
+    // 处理年级选择
+    const gradeSelect = document.getElementById('gradeInput');
+    const customGradeInput = document.getElementById('customGradeInput');
+    let grade = gradeSelect.value;
+    
+    // 如果选择了自定义年级，使用自定义输入框的值
+    if (grade === 'custom' && customGradeInput.value.trim()) {
+        grade = customGradeInput.value.trim();
+    } else if (grade === 'custom') {
+        grade = ''; // 如果没有输入自定义年级，留空
+    }
+
     const newContact = {
-        id: Date.now(), name, relation, contactMethods, notes: [],
+        id: Date.now(), 
+        name, 
+        relation, 
+        contactMethods, 
+        notes: [],
         college: document.getElementById('collegeInput').value.trim(),
         major: document.getElementById('majorInput').value.trim(),
-        grade: document.getElementById('gradeInput').value.trim(),
+        grade: grade,
         className: document.getElementById('classInput').value.trim(),
         studentId: document.getElementById('studentIdInput').value.trim()
     };
@@ -421,6 +466,8 @@ document.getElementById('addBtn').addEventListener('click', () => {
     ['nameInput', 'initialNoteInput', 'collegeInput', 'majorInput', 'gradeInput', 'classInput', 'studentIdInput'].forEach(id => document.getElementById(id).value = '');
     relationSelect.value = categoriesData[0];
     customRelationInput.style.display = 'none';
+    customGradeInput.style.display = 'none';
+    customGradeInput.value = '';
     methodsContainer.innerHTML = ''; addMethodRow(); // 恢复默认的1行联系方式
     nameInput.focus();
 });
@@ -439,6 +486,29 @@ window.appendNote = function(id) {
 
 window.deleteContact = function(id) {
     if(confirm('确定要删除这条档案吗？')) { contactsData = contactsData.filter(c => c.id !== id); saveData(); }
+};
+
+// 编辑备注（不改变时间戳）
+window.editNote = function(contactId, noteIndex) {
+    const contact = contactsData.find(c => c.id === contactId);
+    if (!contact || !contact.notes[noteIndex]) return;
+    
+    const newText = prompt('编辑备注:', contact.notes[noteIndex].text);
+    if (newText !== null && newText.trim() !== '') {
+        contact.notes[noteIndex].text = newText.trim();
+        saveData();
+    }
+};
+
+// 删除备注
+window.deleteNote = function(contactId, noteIndex) {
+    const contact = contactsData.find(c => c.id === contactId);
+    if (!contact || !contact.notes[noteIndex]) return;
+    
+    if (confirm('确定要删除这条备注吗？')) {
+        contact.notes.splice(noteIndex, 1);
+        saveData();
+    }
 };
 
 async function saveData() {
