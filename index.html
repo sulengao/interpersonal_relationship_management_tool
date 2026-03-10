@@ -102,6 +102,22 @@
                 </div>
             </div>
 
+            <!-- 个人备注区域 -->
+            <div class="input-group">
+                <label for="longNoteInput">个人备注</label>
+                <div class="long-note-container">
+                    <div class="long-note-header">
+                        <span class="long-note-title">个人备注</span>
+                        <button id="togglePersonalNotesBtn" onclick="togglePersonalNotes()" title="展开/折叠个人备注">展开个人备注 ▼</button>
+                    </div>
+                    <div id="personalNotesContainer" class="personal-notes-content collapsed">
+                        <div id="personalNotesContent">
+                            <textarea id="longNoteInput" placeholder="记录个人备注、性格特点、重要信息等..."></textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <span class="campus-toggle" id="campusToggleBtn">➕ 展开校园信息 (学院/专业/年级/学历/班级)</span>
             <div class="form-row" id="studentFields">
                 <div class="input-group">

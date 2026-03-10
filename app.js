@@ -779,6 +779,38 @@ window.editLongNote = function(contactId) {
     });
 };
 
+// 个人备注折叠功能
+function togglePersonalNotes() {
+    const notesContainer = document.getElementById('personalNotesContainer');
+    const toggleBtn = document.getElementById('togglePersonalNotesBtn');
+    const notesContent = document.getElementById('personalNotesContent');
+    
+    if (notesContainer.classList.contains('collapsed')) {
+        // 展开
+        notesContainer.classList.remove('collapsed');
+        notesContainer.style.height = 'auto';
+        const height = notesContent.scrollHeight + 40 + 'px'; // 40px 为 padding
+        notesContainer.style.height = height;
+        toggleBtn.innerHTML = '收起个人备注 ▼';
+        // 动画结束后移除固定高度
+        setTimeout(() => {
+            notesContainer.style.height = 'auto';
+        }, 300);
+    } else {
+        // 折叠
+        const height = notesContainer.scrollHeight + 'px';
+        notesContainer.style.height = height;
+        // 强制重绘
+        notesContainer.offsetHeight;
+        notesContainer.style.height = '0px';
+        toggleBtn.innerHTML = '展开个人备注 ◀';
+        // 动画结束后添加 collapsed 类
+        setTimeout(() => {
+            notesContainer.classList.add('collapsed');
+        }, 300);
+    }
+}
+
 // --- 编辑联系人功能 ---
 function editContact(id) {
     const contact = contactsData.find(c => c.id === id);
@@ -987,6 +1019,14 @@ function toggleNotes(contactId) {
     }
 }
 
+// 初始化所有联系人卡片的交流记录为折叠状态
+function initializeNotesCollapsed() {
+    const allToggleBtns = document.querySelectorAll('.toggle-notes-btn');
+    allToggleBtns.forEach(btn => {
+        btn.textContent = '▶'; // 初始化为右箭头
+    });
+}
+
 // --- 折叠功能 ---
 function setupCollapsibleSections() {
     const toggleFiltersBtn = document.getElementById('toggleFiltersBtn');
@@ -998,14 +1038,14 @@ function setupCollapsibleSections() {
     toggleFiltersBtn.addEventListener('click', () => {
         const isCollapsed = filtersContent.classList.contains('collapsed');
         filtersContent.classList.toggle('collapsed', !isCollapsed);
-        toggleFiltersBtn.textContent = isCollapsed ? '▼' : '▶';
+        toggleFiltersBtn.textContent = isCollapsed ? '▼' : '◀';
     });
     
     // 新建联系人表单折叠
     toggleFormBtn.addEventListener('click', () => {
         const isCollapsed = formContent.classList.contains('collapsed');
         formContent.classList.toggle('collapsed', !isCollapsed);
-        toggleFormBtn.textContent = isCollapsed ? '▼' : '▶';
+        toggleFormBtn.textContent = isCollapsed ? '▼' : '◀';
     });
     
     // 搜索和筛选时自动折叠新建联系人表单
@@ -1020,7 +1060,7 @@ function setupCollapsibleSections() {
     function autoCollapseForm() {
         if (!formContent.classList.contains('collapsed')) {
             formContent.classList.add('collapsed');
-            toggleFormBtn.textContent = '▶';
+            toggleFormBtn.textContent = '◀';
         }
     }
     
@@ -1046,5 +1086,8 @@ setupAutocomplete('majorInput', 'majorAutocomplete', 'major');
 
 // 设置折叠功能
 setupCollapsibleSections();
+
+// 初始化所有联系人卡片的交流记录为折叠状态
+initializeNotesCollapsed();
 
 
