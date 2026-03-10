@@ -780,11 +780,23 @@ function editContact(id) {
 
     editingContactId = id;
     
+    // 自动展开新建联系人区域
+    const formContent = document.getElementById('formContent');
+    const toggleFormBtn = document.getElementById('toggleFormBtn');
+    if (formContent.classList.contains('collapsed')) {
+        formContent.classList.remove('collapsed');
+        toggleFormBtn.textContent = '▼';
+    }
+    
     // 切换到编辑模式
     document.getElementById('addBtn').style.display = 'none';
     document.getElementById('saveBtn').style.display = 'inline-block';
     document.getElementById('cancelBtn').style.display = 'inline-block';
     document.getElementById('editModeIndicator').style.display = 'block';
+    
+    // 更新标题为"编辑联系人"
+    const formHeader = document.querySelector('.form-header h3');
+    formHeader.textContent = '编辑联系人';
     
     // 填充表单数据
     nameInput.value = contact.name;
@@ -905,6 +917,10 @@ function exitEditMode() {
     document.getElementById('saveBtn').style.display = 'none';
     document.getElementById('cancelBtn').style.display = 'none';
     document.getElementById('editModeIndicator').style.display = 'none';
+    
+    // 恢复标题为"新建联系人"
+    const formHeader = document.querySelector('.form-header h3');
+    formHeader.textContent = '新建联系人';
     
     // 重置表单
     ['nameInput', 'initialNoteInput', 'collegeInput', 'majorInput', 'gradeInput', 'classInput', 'studentIdInput'].forEach(id => document.getElementById(id).value = '');
