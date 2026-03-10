@@ -413,6 +413,61 @@ button:hover { background-color: var(--primary-hover); }
 }
 .student-info p { margin: 0.2rem 0; }
 
+.notes-section {
+    margin-top: 1rem;
+    border-top: 1px solid var(--border-color);
+    padding-top: 1rem;
+}
+
+.notes-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+    cursor: pointer;
+    user-select: none;
+}
+
+.notes-title {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text-main);
+}
+
+.toggle-notes-btn {
+    background: transparent;
+    border: 1px solid var(--border-color);
+    color: var(--text-muted);
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.875rem;
+    transition: all 0.2s ease;
+    height: auto;
+}
+
+.toggle-notes-btn:hover {
+    background-color: var(--bg-color);
+    border-color: var(--text-main);
+    color: var(--text-main);
+}
+
+.notes-section.collapsed {
+    max-height: 40px;
+    overflow: hidden;
+    transition: max-height 0.3s ease-in-out, opacity 0.3s ease-in-out;
+    opacity: 1;
+}
+
+.notes-section.collapsed .notes-timeline,
+.notes-section.collapsed .add-note-box {
+    display: none;
+}
+
+.notes-section.collapsed .toggle-notes-btn {
+    transform: rotate(180deg);
+}
+
 .notes-timeline {
     flex-grow: 1;
     margin-bottom: 1rem;

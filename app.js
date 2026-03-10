@@ -526,10 +526,16 @@ function renderContacts() {
             </div>
             ${methodsHtml} ${studentHtml}
             ${longNoteHtml}
-            <div class="notes-timeline" id="timeline-${contact.id}">${notesHtml}</div>
-            <div class="add-note-box">
-                <input type="text" id="newNote-${contact.id}" placeholder="追加新备注..." onkeypress="if(event.key === 'Enter') appendNote(${contact.id})">
-                <button onclick="appendNote(${contact.id})">记录</button>
+            <div class="notes-section collapsed">
+                <div class="notes-header">
+                    <span class="notes-title">交流记录</span>
+                    <button class="toggle-notes-btn" onclick="toggleNotes(${contact.id})" title="展开/折叠备注">▼</button>
+                </div>
+                <div class="notes-timeline" id="timeline-${contact.id}">${notesHtml}</div>
+                <div class="add-note-box">
+                    <input type="text" id="newNote-${contact.id}" placeholder="追加新备注..." onkeypress="if(event.key === 'Enter') appendNote(${contact.id})">
+                    <button onclick="appendNote(${contact.id})">记录</button>
+                </div>
             </div>
         `;
         contactsGrid.appendChild(card);
@@ -967,6 +973,18 @@ function clearFilters() {
     document.getElementById('gradeFilter').value = '全部';
     document.getElementById('degreeFilter').value = '全部';
     renderContacts();
+}
+
+// --- 联系人卡片折叠功能 ---
+function toggleNotes(contactId) {
+    const notesSection = document.querySelector(`.contact-card:has(#timeline-${contactId}) .notes-section`);
+    const toggleBtn = document.querySelector(`.contact-card:has(#timeline-${contactId}) .toggle-notes-btn`);
+    
+    if (notesSection && toggleBtn) {
+        const isCollapsed = notesSection.classList.contains('collapsed');
+        notesSection.classList.toggle('collapsed', !isCollapsed);
+        toggleBtn.textContent = isCollapsed ? '▼' : '▶';
+    }
 }
 
 // --- 折叠功能 ---
