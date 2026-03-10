@@ -65,9 +65,9 @@
         </div>
     </div>
 
-    <div class="form-section">
+            <div class="form-section">
         <div class="form-header">
-            <h3>新建联系人</h3>
+            <h3 id="formTitle">新建联系人</h3>
             <button id="toggleFormBtn" class="toggle-btn" title="折叠/展开表单">▼</button>
         </div>
         <div id="formContent" class="form-content">
@@ -93,13 +93,6 @@
                 <label style="display: block; margin-bottom: 0.5rem;">联系方式</label>
                 <div class="contact-methods-box" id="methodsContainer"></div>
                 <button type="button" class="add-method-btn" onclick="addMethodRow()" style="margin-top: 0.5rem;">➕ 增加一条联系方式</button>
-            </div>
-
-            <div class="form-row">
-                <div class="input-group" style="flex: 1;">
-                    <label>固有备注</label>
-                    <input type="text" id="initialNoteInput" placeholder="记录重要信息，可随时修改" autocomplete="off">
-                </div>
             </div>
 
             <!-- 个人备注区域 -->

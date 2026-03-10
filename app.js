@@ -1,10 +1,12 @@
 // --- 核心数据层 ---
+// 存储联系人数据和分类数据
 let contactsData = JSON.parse(localStorage.getItem('my_archive_contacts')) || [];
 let categoriesData = JSON.parse(localStorage.getItem('my_archive_categories')) || ['同学', '老师', '导师', '干事'];
 let fileHandle = null; // 用于存储用户授权的文件句柄
 let editingContactId = null; // 当前正在编辑的联系人ID
 
 // --- DOM 获取 ---
+// 获取所有需要操作的DOM元素
 const nameInput = document.getElementById('nameInput');
 const relationSelect = document.getElementById('relationSelect');
 const customRelationInput = document.getElementById('customRelationInput');
@@ -22,6 +24,7 @@ const PREDEFINED_METHODS = ['微信', 'QQ', '电话', '邮箱', '自定义'];
 let isCampusFieldsVisible = false;
 
 // --- 自动同步 & 文件管理功能 ---
+// 设置自动同步文件
 async function setupAutoSyncFile() {
     try {
         const options = {
@@ -37,6 +40,7 @@ async function setupAutoSyncFile() {
     }
 }
 
+// 写入文件
 async function writeToFile() {
     if (!fileHandle) return;
     try {
@@ -51,6 +55,7 @@ async function writeToFile() {
     }
 }
 
+// 导出数据
 function exportData() {
     const archive = { version: "1.2", exportTime: new Date().toISOString(), categories: categoriesData, contacts: contactsData };
     const blob = new Blob([JSON.stringify(archive, null, 2)], { type: "application/json" });
@@ -62,6 +67,7 @@ function exportData() {
     URL.revokeObjectURL(url);
 }
 
+// 导入文件
 importFileInput.addEventListener('change', function(e) {
     const file = e.target.files[0];
     if (!file) return;
@@ -83,6 +89,7 @@ importFileInput.addEventListener('change', function(e) {
 });
 
 // --- 智能联系方式管理 ---
+// 获取下一个可用的联系方式类型
 function getNextAvailableMethod() {
     const usedMethods = Array.from(document.querySelectorAll('.method-type')).map(select => select.value);
     for (let method of PREDEFINED_METHODS) {
@@ -93,6 +100,7 @@ function getNextAvailableMethod() {
     return '自定义';
 }
 
+// 添加联系方式行
 function addMethodRow() {
     const nextMethod = getNextAvailableMethod();
     const row = document.createElement('div');
@@ -113,6 +121,7 @@ function addMethodRow() {
     methodsContainer.appendChild(row);
 }
 
+// 切换自定义输入框显示
 window.toggleMethodInput = function(selectEl) {
     const customInput = selectEl.nextElementSibling;
     if (selectEl.value === '自定义') {
@@ -123,6 +132,7 @@ window.toggleMethodInput = function(selectEl) {
 };
 
 // --- 分类与UI交互 ---
+// 渲染分类选择器
 function renderCategorySelects() {
     const currentFilter = filterSelect.value;
     filterSelect.innerHTML = '<option value="全部">全部分类</option>';
@@ -134,6 +144,7 @@ function renderCategorySelects() {
     relationSelect.innerHTML += `<option value="自定义">➕ 添加新标签...</option>`;
 }
 
+// 分类选择变化事件
 relationSelect.addEventListener('change', function() {
     if (this.value === '自定义') {
         customRelationInput.style.display = 'block'; customRelationInput.focus();
@@ -142,6 +153,7 @@ relationSelect.addEventListener('change', function() {
     }
 });
 
+// 校园信息切换
 campusToggleBtn.addEventListener('click', () => {
     isCampusFieldsVisible = !isCampusFieldsVisible;
     if (isCampusFieldsVisible) {
@@ -391,11 +403,13 @@ function updateSelection(items, index) {
 }
 
 // --- 核心渲染与数据逻辑 ---
+// 格式化时间戳
 function formatDate(timestamp) {
     const d = new Date(timestamp);
     return `${d.getFullYear()}-${(d.getMonth() + 1).toString().padStart(2, '0')}-${d.getDate().toString().padStart(2, '0')} ${d.getHours().toString().padStart(2, '0')}:${d.getMinutes().toString().padStart(2, '0')}`;
 }
 
+// 渲染联系人列表
 function renderContacts() {
     const searchTerm = searchInput.value.toLowerCase();
     const filterValue = filterSelect.value;
@@ -518,6 +532,7 @@ function renderContacts() {
     });
 }
 
+// 添加联系人
 document.getElementById('addBtn').addEventListener('click', () => {
     const name = nameInput.value.trim();
     if (!name) return alert('请填写姓名！');
@@ -556,24 +571,24 @@ document.getElementById('addBtn').addEventListener('click', () => {
         major: document.getElementById('majorInput').value.trim(),
         grade: grade,
         className: document.getElementById('classInput').value.trim(),
-        studentId: document.getElementById('studentIdInput').value.trim()
+        studentId: document.getElementById('studentIdInput').value.trim(),
+        longNote: document.getElementById('longNoteInput').value.trim()
     };
-
-    const initialNote = initialNoteInput.value.trim();
-    if (initialNote) newContact.notes.push({ timestamp: Date.now(), text: initialNote });
 
     contactsData.push(newContact);
     saveData();
 
-    ['nameInput', 'initialNoteInput', 'collegeInput', 'majorInput', 'gradeInput', 'classInput', 'studentIdInput'].forEach(id => document.getElementById(id).value = '');
+    ['nameInput', 'collegeInput', 'majorInput', 'gradeInput', 'classInput', 'studentIdInput'].forEach(id => document.getElementById(id).value = '');
     relationSelect.value = categoriesData[0];
     customRelationInput.style.display = 'none';
     customGradeInput.style.display = 'none';
     customGradeInput.value = '';
+    document.getElementById('longNoteInput').value = '';
     methodsContainer.innerHTML = ''; addMethodRow();
     nameInput.focus();
 });
 
+// 追加备注
 window.appendNote = function(id) {
     const inputEl = document.getElementById(`newNote-${id}`);
     const text = inputEl.value.trim();
@@ -586,10 +601,12 @@ window.appendNote = function(id) {
     }
 };
 
+// 删除联系人
 window.deleteContact = function(id) {
     if(confirm('确定要删除这条档案吗？')) { contactsData = contactsData.filter(c => c.id !== id); saveData(); }
 };
 
+// 编辑备注
 window.editNote = function(contactId, noteIndex) {
     const contact = contactsData.find(c => c.id === contactId);
     if (!contact || !contact.notes[noteIndex]) return;
@@ -601,6 +618,7 @@ window.editNote = function(contactId, noteIndex) {
     }
 };
 
+// 删除备注
 window.deleteNote = function(contactId, noteIndex) {
     const contact = contactsData.find(c => c.id === contactId);
     if (!contact || !contact.notes[noteIndex]) return;
@@ -611,6 +629,7 @@ window.deleteNote = function(contactId, noteIndex) {
     }
 };
 
+// 修改备注时间
 window.editNoteTime = function(contactId, noteIndex) {
     const contact = contactsData.find(c => c.id === contactId);
     if (!contact || !contact.notes[noteIndex]) return;
@@ -689,6 +708,7 @@ window.editNoteTime = function(contactId, noteIndex) {
     });
 };
 
+// 编辑个人备注
 window.editLongNote = function(contactId) {
     const contact = contactsData.find(c => c.id === contactId);
     if (!contact) return;
@@ -767,6 +787,7 @@ function togglePersonalNotes() {
 }
 
 // --- 编辑联系人功能 ---
+// 编辑联系人
 function editContact(id) {
     const contact = contactsData.find(c => c.id === id);
     if (!contact) return;
@@ -785,8 +806,8 @@ function editContact(id) {
     document.getElementById('cancelBtn').style.display = 'inline-block';
     document.getElementById('editModeIndicator').style.display = 'block';
     
-    const formHeader = document.querySelector('.form-header h3');
-    formHeader.textContent = '编辑联系人';
+    const formTitle = document.getElementById('formTitle');
+    formTitle.textContent = '编辑联系人';
     
     nameInput.value = contact.name;
     relationSelect.value = contact.relation;
@@ -834,6 +855,7 @@ function editContact(id) {
     document.querySelector('.form-section').scrollIntoView({ behavior: 'smooth' });
 }
 
+// 保存联系人
 function saveContact() {
     if (!editingContactId) return;
 
@@ -886,10 +908,12 @@ function saveContact() {
     }
 }
 
+// 取消编辑
 function cancelEdit() {
     exitEditMode();
 }
 
+// 退出编辑模式
 function exitEditMode() {
     editingContactId = null;
     
@@ -898,20 +922,22 @@ function exitEditMode() {
     document.getElementById('cancelBtn').style.display = 'none';
     document.getElementById('editModeIndicator').style.display = 'none';
     
-    const formHeader = document.querySelector('.form-header h3');
-    formHeader.textContent = '新建联系人';
+    const formTitle = document.getElementById('formTitle');
+    formTitle.textContent = '新建联系人';
     
-    ['nameInput', 'initialNoteInput', 'collegeInput', 'majorInput', 'gradeInput', 'classInput', 'studentIdInput'].forEach(id => document.getElementById(id).value = '');
+    ['nameInput', 'collegeInput', 'majorInput', 'gradeInput', 'classInput', 'studentIdInput'].forEach(id => document.getElementById(id).value = '');
     relationSelect.value = categoriesData[0];
     customRelationInput.style.display = 'none';
     customRelationInput.value = '';
     customGradeInput.style.display = 'none';
     customGradeInput.value = '';
+    document.getElementById('longNoteInput').value = '';
     methodsContainer.innerHTML = '';
     addMethodRow();
     nameInput.focus();
 }
 
+// 保存数据
 async function saveData() {
     localStorage.setItem('my_archive_contacts', JSON.stringify(contactsData));
     localStorage.setItem('my_archive_categories', JSON.stringify(categoriesData));
@@ -919,6 +945,7 @@ async function saveData() {
     await writeToFile();
 }
 
+// 事件监听
 searchInput.addEventListener('input', renderContacts);
 filterSelect.addEventListener('change', renderContacts);
 
@@ -931,6 +958,7 @@ document.getElementById('clearFiltersBtn').addEventListener('click', clearFilter
 document.getElementById('saveBtn').addEventListener('click', saveContact);
 document.getElementById('cancelBtn').addEventListener('click', cancelEdit);
 
+// 清除筛选
 function clearFilters() {
     document.getElementById('searchInput').value = '';
     document.getElementById('filterSelect').value = '全部';
@@ -942,6 +970,7 @@ function clearFilters() {
 }
 
 // --- 联系人卡片折叠功能 ---
+// 切换备注折叠
 function toggleNotes(contactId) {
     const notesSection = document.querySelector(`.contact-card:has(#timeline-${contactId}) .notes-section`);
     const toggleBtn = document.querySelector(`.contact-card:has(#timeline-${contactId}) .toggle-notes-btn`);
@@ -962,6 +991,7 @@ function initializeNotesCollapsed() {
 }
 
 // --- 折叠功能 ---
+// 设置可折叠区域
 function setupCollapsibleSections() {
     const toggleFiltersBtn = document.getElementById('toggleFiltersBtn');
     const filtersContent = document.getElementById('filtersContent');
